@@ -1,0 +1,7 @@
+@font-face {
+    font-family: 'JosefinSans'; /*a name to be used later*/
+    src: url('https://fonts.google.com/share?selection.family=Josefin+Sans:ital,wght@0,100..700;1,100..700'); /*URL to font*/
+}
+*{
+  font-family: 'JosefinSans';
+}
