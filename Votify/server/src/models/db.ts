@@ -3,6 +3,7 @@ import { JSONFile } from "lowdb/node";
 import path from "path";
 
 import { Data, User } from "../types/Data";
+import { assert } from "console";
 
 
 const filePath = path.resolve(__dirname, "../data/db.json");
@@ -62,6 +63,8 @@ export class Databse {
     }
 
     public async addUSer(userData : User) : Promise<void> {   
+        assert(this.db.data);
+        this.db.data.users.push(userData);
     }
 }
 

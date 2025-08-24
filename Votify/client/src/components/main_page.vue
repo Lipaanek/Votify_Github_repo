@@ -10,9 +10,14 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-function goToLogin() {
-  router.push('/login');
+async function goToLogin() {
+  const res = await fetch("http://localhost:3000/login");
+  const data = await res.json();
+  console.log(data); // server response
+  
+  router.push('/login'); // navigate after logging
 }
+
 
 function goToGroupCreate() {
   router.push('/newGroup')

@@ -3,8 +3,7 @@
     <h2>Login</h2>
     <form @submit.prevent="handleLogin">
       <input v-model="email" placeholder="email" />
-      <input v-model="groupId" type="groupId" placeholder="groupID" />
-      <button type="submit">Login</button>
+      <button type="submit">Send Code</button>
     </form>
     <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
     <button @click="backHome">Go Back</button>
