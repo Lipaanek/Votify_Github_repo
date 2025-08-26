@@ -16,11 +16,29 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const email = ref('');
-const groupId = ref('');
 const errorMessage = ref('');
 
 function handleLogin() {
-  // TODO: udělat API request
+  if (!email.value) {
+    errorMessage.value = 'Email is required';
+    return;
+  }
+  
+  fetch(`http://localhost:3000/api/login?email=${encodeURIComponent(email.value)}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data); // { message: 'Login endpoint hit' }
+      router.push('/verify');
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+      errorMessage.value = 'Failed to send login code. Please try again.';
+    });
 }
 
 async function backHome(){
