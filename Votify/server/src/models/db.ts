@@ -3,7 +3,7 @@ import { JSONFile } from "lowdb/node";
 import path from "path";
 
 import { Data, User } from "../types/Data";
-import { assert } from "console";
+import { assert, warn } from "console";
 
 
 const filePath = path.resolve(__dirname, "../data/db.json");
@@ -62,8 +62,14 @@ export class Databse {
         return this.db.data!;
     }
 
-    public async addUSer(userData : User) : Promise<void> {   
-        assert(this.db.data);
+    public async addUSer(userData : User) : Promise<void> { 
+        if (!this.db.data) {
+            throw new Error("Database not initialized");
+        } else if (!userData) {
+            warn("No user data provided");
+            return;
+        }
+        
         this.db.data.users.push(userData);
     }
 }

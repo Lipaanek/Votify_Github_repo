@@ -71,4 +71,30 @@ export type Data = {
      */
     userGroups: UserGroup[];
 };
-/* #endregion data */
+/** #endregion data */
+
+/** Definuje strukturu ověřovacího kódu pro emailovou verifikaci */
+export type Code = {
+    email: string;
+    /** 
+     * Ověřovací kód 
+     * 
+     * Generován tímhle algoritmem:
+     * 
+     * ```typescript
+     * Math.floor(100000 + Math.random() * 900000).toString();
+     * ```
+     * */
+    code: string;
+    /** Timestamp vypršení platnosti kódu */
+    expiresAt: number; 
+    /** Počet pokusů o ověření kódu */
+    attempts: number; 
+    /** Počet pokusů, které uživatel již zadal */
+    alreadyAttempted: number; 
+}
+
+/** Datová struktura, která definuje ověřovací kódy */
+export type VerificationCode = {
+    code : Code[];
+}

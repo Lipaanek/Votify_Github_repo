@@ -13,12 +13,13 @@ import cors from 'cors';
 import apiRoutes from "./routes/routes";
 import express, { Express } from "express";
 
+import { initializeEmailDB } from './auth';
 /**
  * Hlavní vstupní bod serverové aplikace.
  * Nastavuje a spouští Express server.
  */
 const app: Express = express();
-
+initializeEmailDB();
 /**
  * Middleware pro zpracování JSON těla požadavků a CORS.
  * Používá se pro povolení požadavků z klientské aplikace běžící na jiném portu.
