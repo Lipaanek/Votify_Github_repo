@@ -1,27 +1,21 @@
-import './App.css'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import HomePage from './pages/home';
+import LoginPage from './pages/login';
+import RegisterPage from './pages/register';
+import VerifyPage from './pages/verify';
 
 function App() {
-
   return (
-    <>
-      <div className='top_bar'>
-        <button>View Groups</button>
-        <button>Create Group</button>
-      </div>
-      <div className="logo">
-        <image>
-          <img src='./src/assets/voxplatform_logo.png'></img>
-        </image>
-      </div>
-      <h1>VoxPlatform</h1>
-      <p>VoxPlatform, the best voting online service under the sun. Try now for free.</p>
-      <div className='action_selection'>
-        <button>Login</button>
-        <button>Create Account</button>
-      </div>
-      
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify" element={<VerifyPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
