@@ -7,14 +7,14 @@ export default function HomePage() {
     <div className="App">
       {/* Top bar */}
       <div className="top_bar">
-        <Link to="/login" className="button">View Groups</Link>
-        <Link to="/register" className="button">Create Group</Link>
-        <Link to="/login" className="button">Login</Link>
-      </div>
-
-      {/* Logo outside top bar */}
-      <div className="logo-outside">
-        <img src={logo} alt="VoxPlatform Logo" />
+        <div className="logo">
+          <img src={logo} alt="VoxPlatform Logo" />
+        </div>
+        <div className="nav-buttons">
+          <Link to="/login" className="button2">View Groups</Link>
+          <Link to="/register" className="button2">Create Group</Link>
+          <Link to="/login" className="button2">Login</Link>
+        </div>
       </div>
 
       {/* Main Content */}

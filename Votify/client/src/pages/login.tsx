@@ -1,9 +1,10 @@
-import './home.css';
+import './login.css';
 import logo from '../assets/voxplatform_logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
 
@@ -25,57 +26,64 @@ export default function LoginPage() {
     }
 
     if (valid) {
-      // Placeholder for login logic
+      fetch("http://localhost:3000/api/login?email=" + encodeURIComponent(email)).catch(err => {
+        console.error('Error sending login request:', err);
+      });
       console.log('Login button clicked');
+      
+      navigate('/verify', { state: { email } });
     }
   };
 
   return (
     <div className="App">
-      {/* Background animation */}
-      <div className="vote-bars-background">
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-      </div>
-
-      {/* Top bar */}
       <div className="top_bar">
-        <Link to="/login" className="button">View Groups</Link>
-        <Link to="/register" className="button">Create Group</Link>
-        <Link to="/login" className="button">Login</Link>
+        <div className="logo">
+          <img src={logo} alt="VoxPlatform Logo" />
+        </div>
+        <div className="nav-buttons">
+          <Link to="/login" className="button2">View Groups</Link>
+          <Link to="/register" className="button2">Create Group</Link>
+          <Link to="/login" className="button2">Login</Link>
+        </div>
       </div>
 
-      {/* Logo outside top bar */}
-      <div className="logo-outside">
-        <img src={logo} alt="VoxPlatform Logo" />
-      </div>
+      <div className="login-main">
+        <div className="login-card">
+          <div className="login-header">
+            <div className="logo-section">
+              <img src={logo} alt="VoxPlatform Logo" className="login-logo" />
+            </div>
+            <h1 className="login-title">Welcome to VoxPlatform</h1>
+            <p className="login-subtitle">Secure voting platform for schools, companies, and communities</p>
+          </div>
 
-      {/* Main Content */}
-      <div className="main-content">
-        {/* Login Form */}
-        <div className="form-container">
-          <h2 className="hero-title">Login to VoxPlatform</h2>
-          <input
-            type="email"
-            placeholder="Email"
-            className="input-field"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          {emailError && <p className="error-message">{emailError}</p>}
-          <button className="button" onClick={handleLogin}>
-            Send Login Code
-          </button>
-          <p>
-            Don't have an account? <Link to="/register" className="link">Register</Link>
-          </p>
+          <div className="login-form">
+            <h2 className="form-title">Sign In</h2>
+            <p className="form-description">Enter your email address and we'll send you a verification code</p>
+            <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+              <div className="form-group">
+                <label htmlFor="email">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              {emailError && <p className="error-message">{emailError}</p>}
+              <button type="submit" className="button login-button">Send Verification Code</button>
+            </form>
+            <div className="divider">
+              <span>or</span>
+            </div>
+            <p className="signup-prompt">
+              Don't have an account? <Link to="/register" className="signup-link">Sign up</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

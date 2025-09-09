@@ -1,4 +1,4 @@
-import './home.css';
+import './login.css';
 import logo from '../assets/voxplatform_logo.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -29,56 +29,61 @@ export default function RegisterPage() {
       // Placeholder for register logic
       console.log('Register button clicked');
       // After submit, navigate to verify
-      navigate('/verify');
+      navigate('/verify', { state: { email } });
     }
   };
 
   return (
     <div className="App">
-      {/* Background animation */}
-      <div className="vote-bars-background">
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-        <div className="vote-bar"></div>
-      </div>
-
-      {/* Top bar */}
       <div className="top_bar">
-        <Link to="/login" className="button">View Groups</Link>
-        <Link to="/register" className="button">Create Group</Link>
-        <Link to="/login" className="button">Login</Link>
+        <div className="logo">
+          <img src={logo} alt="VoxPlatform Logo" />
+        </div>
+        <div className="nav-buttons">
+          <Link to="/login" className="button2">View Groups</Link>
+          <Link to="/register" className="button2">Create Group</Link>
+          <Link to="/login" className="button2">Login</Link>
+        </div>
       </div>
 
-      {/* Logo outside top bar */}
-      <div className="logo-outside">
-        <img src={logo} alt="VoxPlatform Logo" />
-      </div>
+      <div className="login-main">
+        <div className="login-card">
+          <div className="login-header">
+            <div className="logo-section">
+              <img src={logo} alt="VoxPlatform Logo" className="login-logo" />
+            </div>
+            <h1 className="login-title">Join VoxPlatform</h1>
+            <p className="login-subtitle">Create your account and start participating in secure online voting</p>
+          </div>
 
-      {/* Main Content */}
-      <div className="main-content">
-        {/* Register Form */}
-        <div className="form-container">
-          <h2 className="hero-title">Register for VoxPlatform</h2>
-          <input
-            type="email"
-            placeholder="Email"
-            className="input-field"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          {emailError && <p className="error-message">{emailError}</p>}
-          <button className="button" onClick={handleRegister}>
-            Send Registration Code
-          </button>
-          <p>
-            Already have an account? <Link to="/login" className="link">Login</Link>
-          </p>
+          <div className="login-form">
+            <h2 className="form-title">Create Account</h2>
+            <p className="form-description">Enter your email address and we'll send you a registration code</p>
+            <form onSubmit={(e) => { e.preventDefault(); handleRegister(); }}>
+              <div className="form-group">
+                <label htmlFor="email">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              {emailError && <p className="error-message">{emailError}</p>}
+              <button type="submit" className="button login-button">
+                Send Registration Code
+              </button>
+            </form>
+            <div className="divider">
+              <span>or</span>
+            </div>
+            <p className="signup-prompt">
+              Already have an account? <Link to="/login" className="signup-link">Sign in</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

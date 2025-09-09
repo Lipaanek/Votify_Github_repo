@@ -24,7 +24,8 @@ initializeEmailDB();
  * Middleware pro zpracování JSON těla požadavků a CORS.
  * Používá se pro povolení požadavků z klientské aplikace běžící na jiném portu.
  */
-app.use(cors({ origin: 'http://localhost:5000' }));
+app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(express.json());
 
 /**
  * Middleware pro zpracování HTTP požadavků na API.

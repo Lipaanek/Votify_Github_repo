@@ -14,7 +14,7 @@ router.get('/api/login', (req : Request, res : Response) => {
 });
 
 router.get('/api/login/code', (req: Request, res: Response) => {
-    const { code } = req.params;
+    const code = req.query.code as string;
     const email = req.query.email as string;
     console.log(`Verifying code ${code} for email ${email}`);
     validateCode(email, code)
