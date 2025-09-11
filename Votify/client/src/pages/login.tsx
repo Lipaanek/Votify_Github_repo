@@ -26,7 +26,9 @@ export default function LoginPage() {
     }
 
     if (valid) {
-      fetch("http://localhost:3000/api/login?email=" + encodeURIComponent(email)).catch(err => {
+      fetch("http://localhost:3000/api/login?email=" + encodeURIComponent(email), {
+        credentials: 'include'
+      }).catch(err => {
         console.error('Error sending login request:', err);
       });
       console.log('Login button clicked');

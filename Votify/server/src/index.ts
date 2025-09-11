@@ -9,23 +9,27 @@ import path from 'path';
 import fs from 'fs';
 
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import apiRoutes from "./routes/routes";
 import express, { Express } from "express";
 
 import { initializeEmailDB } from './auth';
+import { initializeCookiesDB } from './cookies';
 /**
  * Hlavní vstupní bod serverové aplikace.
  * Nastavuje a spouští Express server.
  */
 const app: Express = express();
 initializeEmailDB();
+initializeCookiesDB();
 /**
  * Middleware pro zpracování JSON těla požadavků a CORS.
  * Používá se pro povolení požadavků z klientské aplikace běžící na jiném portu.
  */
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 /**
  * Middleware pro zpracování HTTP požadavků na API.

@@ -1,6 +1,6 @@
 import './login.css';
 import logo from '../assets/voxplatform_logo.png';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 
 export default function VerifyPage() {
@@ -42,7 +42,9 @@ export default function VerifyPage() {
     console.log('Verify button clicked');
 
     try {
-      const response = await fetch(`http://localhost:3000/api/login/code?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
+      const response = await fetch(`http://localhost:3000/api/login/code?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       if (response.ok) {
         setMessage('Code verified successfully!');
@@ -63,7 +65,9 @@ export default function VerifyPage() {
   const handleResend = async () => {
     console.log('Resend button clicked');
     try {
-      const response = await fetch(`http://localhost:3000/api/login?email=${encodeURIComponent(email)}`);
+      const response = await fetch(`http://localhost:3000/api/login?email=${encodeURIComponent(email)}`, {
+        credentials: 'include'
+      });
       if (response.ok) {
         setMessage('Code resent to your email');
         setMessageType('success');

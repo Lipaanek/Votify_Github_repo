@@ -152,12 +152,19 @@ export async function sendVerificationMail(email: string) {
             Use the code below to complete your login to Vox:
                       ${VERIFICATION_CODE}
             This code will expire in 15 minutes.
-            f you did not request this code, please ignore this email.`,
+            If you did not request this code, please ignore this email.`,
     });
 
     console.log("Email sent:", info.response);
     await saveVerificationCode(email, VERIFICATION_CODE);
   } catch (error) {
     console.error("Error sending email:", error);
+    // Fallback: log the code to console for testing
+    const VERIFICATION_CODE = generateVerificationCode();
+    console.log(`\n=== VERIFICATION CODE FOR ${email} ===`);
+    console.log(`Code: ${VERIFICATION_CODE}`);
+    console.log(`This code will expire in 15 minutes.`);
+    console.log(`=====================================\n`);
+    await saveVerificationCode(email, VERIFICATION_CODE);
   }
 }

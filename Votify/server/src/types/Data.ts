@@ -98,3 +98,17 @@ export type Code = {
 export type VerificationCode = {
     code : Code[];
 }
+
+/** Definuje strukturu cookie pro autentifikaci */
+export type Cookie = {
+    email: string;
+    /** Nahodný string, pro session id, aka cookie */
+    cookie: string;
+    /** Timestamp vypršení platnosti cookie */
+    expiresAt: number;
+}
+
+/** Datová struktura pro cookies */
+export type CookiesData = {
+    cookies: Cookie[];
+}
