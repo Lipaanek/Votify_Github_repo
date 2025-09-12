@@ -130,6 +130,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-left: auto;
 }
 
 /* Main Login Content */
@@ -192,6 +193,8 @@ body {
 /* Login Form */
 .login-form {
   padding: 2rem;
+  /* The flex properties were causing alignment issues. */
+  /* Block-level children with width: 100% will fill the space correctly. */
 }
 
 .form-title {
@@ -212,6 +215,7 @@ body {
 
 .form-group {
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .form-group label {
@@ -245,7 +249,7 @@ body {
 /* Form Options */
 .form-options {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 2rem;
 }
@@ -276,21 +280,26 @@ body {
   text-decoration: underline;
 }
 
-/* Login Button */
 .login-button {
+  position: inherit;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   color: white;
-  border: none;
-  padding: 0.875rem 2rem;
-  border-radius: var(--border-radius-lg);
+  border: 2px solid transparent; /* matches input's border */
+  padding: 0.875rem 1rem;        /* same horizontal padding as input */
+  border-radius: var(--border-radius-md); /* same as input */
   font-size: var(--font-size-base);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
   margin-bottom: 1.5rem;
+  padding-right: 20rem;
   box-shadow: var(--shadow-md);
+  display: block;
+  box-sizing: border-box;        /* make sure borders are included */
 }
+
+
 
 .login-button:hover {
   transform: translateY(-2px);

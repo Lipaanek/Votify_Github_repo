@@ -5,8 +5,6 @@ export type roleEnum = "admin" | "member";
 
 /** #region DataTypesDatabase */
 export type User = {
-    /** Unikátní ID uživatele */
-    id: number;
     /** Jméno uživatele, není vyžadováno */
     name?: string;
     /** Email, podle kterého se uživatel registruje */
@@ -31,10 +29,10 @@ export type Group = {
 }
 
 export type UserGroup = {
-    /** ID uživatele
-     *  @see {@link User.id} 
+    /** Email uživatele
+     *  @see {@link User.email} 
     */
-    userId: number;
+    userEmail: string;
 
     /** ID skupiny*
      * @see {@link Group.id} pro strukturu skupiny

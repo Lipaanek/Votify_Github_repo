@@ -31,7 +31,6 @@ export default function LoginPage() {
       }).catch(err => {
         console.error('Error sending login request:', err);
       });
-      console.log('Login button clicked');
       
       navigate('/verify', { state: { email } });
     }
@@ -75,9 +74,13 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
+                
               </div>
               {emailError && <p className="error-message">{emailError}</p>}
-              <button type="submit" className="button login-button">Send Verification Code</button>
+              <div className='form-group'>
+                <button type="submit" className="button login-button">Send Verification Code</button>
+              </div>
+              
             </form>
             <div className="divider">
               <span>or</span>

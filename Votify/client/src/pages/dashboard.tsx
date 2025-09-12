@@ -116,9 +116,11 @@ export default function DashboardPage() {
           <div className="votings-list">
             {votings.map(voting => (
               <div key={voting.id} className="voting-card">
-                <h3>{voting.title}</h3>
-                <p>Status: {voting.status}</p>
-                <p>Ends: {voting.endDate}</p>
+                <div className="card-content">
+                  <h3>{voting.title}</h3>
+                  <p>Status: {voting.status}</p>
+                  <p>Ends: {voting.endDate}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -127,36 +129,25 @@ export default function DashboardPage() {
         {/* Groups List */}
         <div className="dashboard-section">
           <h2>Groups</h2>
-          <div className="groups-grid">
+          <div className="groups-list">
             {groups.map(group => (
               <div key={group.id} className="group-card">
-                <h3>{group.name}</h3>
-                <p>{group.description}</p>
-                <p>Members: {group.members}</p>
+                <div className="card-content">
+                  <h3>{group.name}</h3>
+                  <p>{group.description}</p>
+                  <p>Members: {group.members}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Calendar Section */}
+        {/* Calendar Button */}
         <div className="dashboard-section">
-          <h2>Weekly Votings</h2>
-          <div className="calendar">
-            {week.map((date, index) => (
-              <div key={index} className="calendar-day">
-                <h4>{date.toDateString()}</h4>
-                <div className="day-votings">
-                  {calendarVotings
-                    .filter(v => new Date(v.date).toDateString() === date.toDateString())
-                    .map(v => (
-                      <div key={v.id} className="calendar-voting">
-                        {v.title}
-                      </div>
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <h2>Calendar</h2>
+          <Link to="/calendar" className="calendar-button">
+            View Full Calendar
+          </Link>
         </div>
       </div>
     </div>

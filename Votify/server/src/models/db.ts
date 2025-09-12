@@ -6,13 +6,13 @@ import { Data, User } from "../types/Data";
 import { assert, warn } from "console";
 
 
-const filePath = path.resolve(__dirname, "../data/db.json");
+const filePath = path.resolve(__dirname, "data.json");
 const adapter = new JSONFile<Data>(filePath);
 
 /**
  * Třída pro správu databáze pomocí LowDB.
  */
-export class Databse {
+export class Database {
     private db: Low<Data>;
 
     /**
@@ -42,7 +42,13 @@ export class Databse {
      * @returns {Promise<void>} Promise, která se vyřeší po načtení dat.
      */
     async init() {
-        await this.db.read();
+        try {
+            await this.db.read();
+        } catch (err) {
+            console.warn("Database file is empty or invalid, initializing with defaults");
+            this.db.data = { users: [], groups: [], userGroups: [] };
+            await this.db.write();
+        }
         this.db.data ||= { users: [], groups: [], userGroups: [] };
     }
 
@@ -62,15 +68,21 @@ export class Databse {
         return this.db.data!;
     }
 
-    public async addUSer(userData : User) : Promise<void> { 
+    public async addUser(userData : User) : Promise<void> {
         if (!this.db.data) {
             throw new Error("Database not initialized");
         } else if (!userData) {
             warn("No user data provided");
             return;
         }
-        
+
         this.db.data.users.push(userData);
+        await this.db.write();
+    }
+
+    public async doesUserExist(email: string) : Promise<boolean> {
+        assert(this.db.data, "Database not initialized");
+        return this.db.data.users.some(user => user.email === email);
     }
 }
 

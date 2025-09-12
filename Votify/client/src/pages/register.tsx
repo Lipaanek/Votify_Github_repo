@@ -26,9 +26,11 @@ export default function RegisterPage() {
     }
 
     if (valid) {
-      // Placeholder for register logic
-      console.log('Register button clicked');
-      // After submit, navigate to verify
+      fetch("http://localhost:3000/api/register?email=" + encodeURIComponent(email), {
+        credentials: 'include'
+      }).catch(err => {
+        console.error('Error sending registration request:', err);
+      });
       navigate('/verify', { state: { email } });
     }
   };
