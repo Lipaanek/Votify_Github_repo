@@ -94,6 +94,11 @@ export type Code = {
 
 /** Datová struktura, která definuje ověřovací kódy */
 export type VerificationCode = {
+    /**
+     * Seznam ověřovacích kódů pro emailovou verifikaci
+     * 
+     * @see {@link Code} pro strukturu ověřovacího kódu
+     */
     code : Code[];
 }
 
@@ -108,5 +113,20 @@ export type Cookie = {
 
 /** Datová struktura pro cookies */
 export type CookiesData = {
+    /**
+     * Seznam cookies pro autentifikaci uživatelů
+     * 
+     * @see {@link Cookie} pro strukturu cookie
+     */
     cookies: Cookie[];
+}
+
+/** Definuje strukturu odpovědi na /api/info */
+export type InfoRequest = { 
+    /**
+     * Seznam skupin, do kterých uživatel patří
+     * 
+     * @see {@link Group} pro strukturu skupiny
+     */
+    userGroups: Group[];
 }

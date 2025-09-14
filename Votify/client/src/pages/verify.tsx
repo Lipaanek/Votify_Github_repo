@@ -49,7 +49,7 @@ export default function VerifyPage() {
       if (response.ok) {
         setMessage('Code verified successfully!');
         setMessageType('success');
-        navigate("/dashboard");
+        navigate("/dashboard", { state: email });
         
       } else {
         setMessage(data.error || 'Invalid code');

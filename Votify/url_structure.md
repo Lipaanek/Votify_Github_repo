@@ -72,6 +72,7 @@ To provide clear separation and branding for different user segments:
 | `/api/votes/:id` | GET | Get vote details |
 | `/api/votes/:id/vote` | POST | Cast vote |
 | `/api/votes/:id/results` | GET | Get vote results |
+| `/api/info/groups` | GET | Gets the information about user's profile (joined groups) |
 
 ## Routing and Navigation Flow
 

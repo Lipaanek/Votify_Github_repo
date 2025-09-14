@@ -233,6 +233,7 @@ body {
 /* Hero Section */
 .hero-section {
   margin-bottom: 3rem;
+  width: 100%;
 }
 
 .hero-title {
@@ -265,6 +266,7 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 3rem;
+  width: 100%;
 }
 
 .action-buttons .button {

@@ -5,7 +5,8 @@ import LoginPage from './pages/login';
 import RegisterPage from './pages/register';
 import VerifyPage from './pages/verify';
 import DashboardPage from './pages/dashboard';
-import CalendarPage from './pages/calendar';
+import GroupPage from './pages/group';
+import CreateGroupPage from './pages/createGroup';
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify" element={<VerifyPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="/group/:groupId" element={<GroupPage />} />
+        <Route path="/create-group" element={<CreateGroupPage />} />
       </Routes>
     </BrowserRouter>
   );

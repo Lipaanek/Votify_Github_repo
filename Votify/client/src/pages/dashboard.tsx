@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import logo from '../assets/voxplatform_logo.png';
 import './dashboard.css';
 
-interface Voting {
+interface ActivePoll {
   id: number;
-  title: string;
-  status: string;
-  endDate: string;
+  groupName: string;
+  votes: number;
 }
 
 interface Group {
@@ -17,18 +16,13 @@ interface Group {
   members: number;
 }
 
-interface CalendarVoting {
-  id: number;
-  title: string;
-  date: string;
-}
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [authenticated, setAuthenticated] = useState(false);
-  const [votings, setVotings] = useState<Voting[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [calendarVotings, setCalendarVotings] = useState<CalendarVoting[]>([]);
+  const [email, setEmail] = useState('');
+  const [activePolls, setActivePolls] = useState<ActivePoll[]>([]);
+  const [joinedGroups, setJoinedGroups] = useState<Group[]>([]);
 
   useEffect(() => {
     // Check authentication
@@ -39,10 +33,10 @@ export default function DashboardPage() {
       .then(data => {
         if (data.authenticated) {
           setAuthenticated(true);
+          setEmail(data.email);
           // Fetch dashboard data
-          fetchVotings();
-          fetchGroups();
-          fetchCalendarVotings();
+          fetchActivePolls();
+          fetchJoinedGroups(data.email);
         } else {
           navigate('/login');
         }
@@ -50,50 +44,43 @@ export default function DashboardPage() {
       .catch(() => navigate('/login'));
   }, [navigate]);
 
-  const fetchVotings = () => {
-    // Placeholder: fetch from /api/dashboard/votings
-    // For now, mock data
-    setVotings([
-      { id: 1, title: 'School Council Election', status: 'In Progress', endDate: '2023-10-01' },
-      { id: 2, title: 'Company Policy Vote', status: 'In Progress', endDate: '2023-10-05' }
+  const fetchActivePolls = () => {
+    // For now, mock data since polls are not implemented
+    setActivePolls([
+      { id: 1, groupName: 'School Council', votes: 15 },
+      { id: 2, groupName: 'Company Board', votes: 8 },
+      { id: 3, groupName: 'Company Board', votes: 8 },
+      { id: 4, groupName: 'Company Board', votes: 8 },
     ]);
   };
 
-  const fetchGroups = () => {
-    // Placeholder: fetch from /api/dashboard/groups
-    setGroups([
-      { id: 1, name: 'School Council', description: 'Student representatives', members: 25 },
-      { id: 2, name: 'Company Board', description: 'Executive decisions', members: 10 },
-      { id: 3, name: 'Community Group', description: 'Local initiatives', members: 50 }
-    ]);
-  };
-
-  const fetchCalendarVotings = () => {
-    // Placeholder: fetch from /api/dashboard/calendar
-    setCalendarVotings([
-      { id: 1, title: 'School Council Election', date: '2023-09-15' },
-      { id: 2, title: 'Company Policy Vote', date: '2023-09-18' }
-    ]);
+  const fetchJoinedGroups = (userEmail: string) => {
+    fetch(`http://localhost:3000/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.userGroups) {
+          setJoinedGroups(data.userGroups.map((group: any, index: number) => ({
+            id: group.id || index,
+            name: group.name,
+            description: group.description || '',
+            members: group.members || 0
+          })));
+        } else {
+          setJoinedGroups([]);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching groups:', err);
+        setJoinedGroups([]);
+      });
   };
 
   if (!authenticated) {
     return <div>Loading...</div>;
   }
 
-  // Get current week dates
-  const getCurrentWeek = () => {
-    const now = new Date();
-    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-    const week = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      week.push(date);
-    }
-    return week;
-  };
-
-  const week = getCurrentWeek();
 
   return (
     <div className="App">
@@ -110,44 +97,60 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <div className="main-content">
-        {/* Votings in Progress */}
+        {/* Active Polls */}
         <div className="dashboard-section">
-          <h2>Votings in Progress</h2>
-          <div className="votings-list">
-            {votings.map(voting => (
-              <div key={voting.id} className="voting-card">
-                <div className="card-content">
-                  <h3>{voting.title}</h3>
-                  <p>Status: {voting.status}</p>
-                  <p>Ends: {voting.endDate}</p>
-                </div>
+          <h2>Active polls</h2>
+          <div className="active-polls-list">
+            {activePolls.length === 0 ? (
+              <div className="no-data">
+                <h3>No Active Polls</h3>
+                <p>Join groups to participate in polls!</p>
               </div>
-            ))}
+            ) : (
+              activePolls.map(poll => (
+                <div key={poll.id} className="poll-card">
+                  <div className="card-top">
+                    <h3>{poll.groupName.toUpperCase()}</h3>
+                  </div>
+                  <div className="card-bottom">
+                    <button className="enter-button poll-enter">Enter</button>
+                    <p>{poll.votes} votes</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Groups List */}
+        {/* Joined Groups */}
         <div className="dashboard-section">
-          <h2>Groups</h2>
-          <div className="groups-list">
-            {groups.map(group => (
-              <div key={group.id} className="group-card">
-                <div className="card-content">
-                  <h3>{group.name}</h3>
-                  <p>{group.description}</p>
-                  <p>Members: {group.members}</p>
-                </div>
+          <h2>Joined groups</h2>
+          <div className="joined-groups-list">
+            {joinedGroups.length === 0 ? (
+              <div className="no-data">
+                <h3>No Groups</h3>
+                <p>Join groups now!</p>
               </div>
-            ))}
+            ) : (
+              joinedGroups.map(group => (
+                <div key={group.id} className="group-card">
+                  <div className="card-top">
+                    <h3>{group.name.toUpperCase()}</h3>
+                  </div>
+                  <div className="card-bottom">
+                    <button className="enter-button group-enter" onClick={() => navigate(`/group/${group.id}`)}>Enter</button>
+                    <p>{group.members} members</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Calendar Button */}
-        <div className="dashboard-section">
-          <h2>Calendar</h2>
-          <Link to="/calendar" className="calendar-button">
-            View Full Calendar
-          </Link>
+        {/* Action Buttons */}
+        <div className="dashboard-buttons">
+          <Link to="/create-group" className="action-button">Create group</Link>
+          <button className="action-button">Join group</button>
         </div>
       </div>
     </div>

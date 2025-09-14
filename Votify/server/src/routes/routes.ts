@@ -93,5 +93,43 @@ router.get('/api/auth/check', async (req: Request, res: Response) => {
     res.json({ authenticated: true, email });
 });
 
+router.get('/api/info/groups', async (req: Request, res: Response) => {
+    const email = req.query.email as string;
+    if (!dbExists() || !email) { return; }
+
+    const info: any = await dbInstance.getUserInfo(email);
+    if (!info) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(info)
+});
+
+router.post('/api/group', async (req: Request, res: Response) => {
+    if (!dbExists()) { return; }
+    const cookie = req.cookies.session;
+    if (!cookie) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const email = await validateCookie(cookie);
+    if (!email) {
+        return res.status(401).json({ error: 'Invalid session' });
+    }
+
+    const { name, description } = req.body;
+    if (!name) {
+        return res.status(400).json({ error: 'Group name is required' });
+    }
+
+    try {
+        const groupId = await dbInstance.addGroup({ name, description: description || '', last_use: new Date().toISOString() });
+        await dbInstance.addUserToGroup(email, groupId, 'admin');
+        res.json({ message: 'Group created', groupId });
+    } catch (err) {
+        console.error('Error creating group:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 export default router;

@@ -5,6 +5,30 @@
       "name": ""
     }
   ],
-  "groups": [],
-  "userGroups": []
+  "groups": [
+    {
+      "id": 1,
+      "name": "Lips Group",
+      "description": "Testing this, does it work tho?",
+      "last_use": "2025-09-14T15:34:08.925Z"
+    },
+    {
+      "id": 2,
+      "name": "group test 2",
+      "description": "Testing this",
+      "last_use": "2025-09-14T15:43:11.092Z"
+    }
+  ],
+  "userGroups": [
+    {
+      "userEmail": "lipaanek@gmail.com",
+      "groupId": 1,
+      "role": "admin"
+    },
+    {
+      "userEmail": "lipaanek@gmail.com",
+      "groupId": 2,
+      "role": "admin"
+    }
+  ]
 }
