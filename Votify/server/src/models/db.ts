@@ -2,7 +2,7 @@ import { Low } from "lowdb";
 import { JSONFile } from "lowdb/node";
 import path from "path";
 
-import { Data, User, InfoRequest, Group } from "../types/Data";
+import { Data, User, InfoRequest, Group, Poll } from "../types/Data";
 import { assert, warn } from "console";
 
 
@@ -75,7 +75,6 @@ export class Database {
      * @example
      * ```typescript
      * const user = { email: 'example@gmail.com'; name: ''; };
-     * const db = new Database();
      * 
      * db.addUser(user);
      * ```
@@ -96,7 +95,6 @@ export class Database {
      * @example
      * ```typescript
      * const email = 'example@gmail.com';
-     * const db = new Database();
      * 
      * const result = db.doesUserExist(email); // True | False
      */
@@ -138,7 +136,6 @@ export class Database {
      * @example
      * ```typescript
      * const groupData = { name: 'Test Group'; description: 'Just testing stuff...'; last_use: '2025-09-14T15:43:11.092Z' };
-     * const db = new Database();
      * 
      * const groupId = db.addGroup(groupData);
      * ```
@@ -148,7 +145,7 @@ export class Database {
         assert(groupData, "No group data provided");
 
         const newId = this.db.data.groups.length > 0 ? Math.max(...this.db.data.groups.map(g => g.id)) + 1 : 1;
-        const group = { id: newId, ...groupData };
+        const group = { id: newId, polls: [], ...groupData };
         this.db.data.groups.push(group);
         await this.db.write();
         return newId;
@@ -163,11 +160,8 @@ export class Database {
      * ```typescript
      * const groupData = { name: 'Test Group'; description: 'Just testing stuff...'; last_use: '2025-09-14T15:43:11.092Z' };
      * const email = 'example@gmail.com';
-     * const db = new Database();
      * 
      * const role = "admin";
-     * 
-     * const groupId = db.addGroup(groupData);
      * 
      * db.addUserToGroup(email, groupId, role);
      * ```
@@ -177,7 +171,33 @@ export class Database {
         assert(email, "No email provided");
         assert(groupId, "No groupId provided");
 
-        this.db.data.userGroups.push({ userEmail: email, groupId, role });
+        this.db.data.userGroups.push({ userEmail: email, groupId: groupId, role: role});
+        await this.db.write();
+    }
+
+    /**
+     * Přidá hlasování do určité skupiny
+     * @param poll data hlasování, @see {@link Poll}
+     * @param groupId unikátní ID skupiny, kde přidat hlasování
+     * 
+     * @example
+     * ```typescript
+     * const pollData = { votes: 0, end: "2025-10-14T15:43:11.092Z" };
+     * const groupId = 1 // příklad ID skupiny
+     * 
+     * db.addPollToGroup(pollData, groupId);
+     * ```
+     */
+    public async addPollToGroup(poll : {votes: number, end: string}, groupId : number) : Promise<void> {
+        assert(this.db, "Database not initialized");
+        assert(poll, "Poll does not exist");
+        assert(groupId, "GroupId does not exist");
+
+        const pollFinal = {options: [], alreadyVoted: [], ...poll} as Poll;
+        const group = this.db.data.groups.find(group => group.id === groupId);
+        if(!group || !pollFinal) { assert(group, "Group or poll does not exist"); }
+
+        group?.polls.push(pollFinal);
         await this.db.write();
     }
 }

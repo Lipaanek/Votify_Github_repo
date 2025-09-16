@@ -26,6 +26,11 @@ export type Group = {
 
     /** Datum posledního použití ve formátu ISO 8601 */
     last_use: string;
+    /**
+     * Aktivní hlasování
+     * @see {@link Poll} pro definici hlasování
+     */
+    polls: Poll[];
 }
 
 export type UserGroup = {
@@ -44,6 +49,48 @@ export type UserGroup = {
      */
     role: roleEnum;
 }
+
+/**
+ * Definuje možnost volby
+ */
+export type Option = {
+    /**
+     * Název možnosti
+     */
+    optionName: string;
+    /**
+     * Kolik hlasů má možnost
+     */
+    votes: number;
+    /**
+     * Popis možnosti, dobrovolné
+     */
+    optionDescription?: string;
+}
+
+/**
+ * Definuje hlasování
+ */
+export type Poll = {
+    /**
+     * Už zadané hlasy
+     */
+    votes: number;
+    /**
+     * Možnosti, pro které mohou uživatelé volit
+     * @see {@link Option} pro definici možností 
+     */
+    options: Option[];
+    /**
+     * List emailů, které daly hlas
+     */
+    alreadyVoted: string[];
+    /**
+     * Čas, kdy hlasování končí
+     */
+    end: string;
+}
+
 /** #regionend DataTypesDatabase */
 
 /** #region data */
