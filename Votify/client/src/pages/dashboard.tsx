@@ -150,6 +150,7 @@ export default function DashboardPage() {
         {/* Action Buttons */}
         <div className="dashboard-buttons">
           <Link to="/create-group" className="action-button">Create group</Link>
+          <Link to="/create-poll" className="action-button">Create poll</Link>
           <button className="action-button">Join group</button>
         </div>
       </div>

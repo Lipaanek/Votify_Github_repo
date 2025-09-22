@@ -73,12 +73,16 @@ export type Option = {
  */
 export type Poll = {
     /**
+     * Unikátní ID hlasování
+     */
+    id: number;
+    /**
      * Už zadané hlasy
      */
     votes: number;
     /**
      * Možnosti, pro které mohou uživatelé volit
-     * @see {@link Option} pro definici možností 
+     * @see {@link Option} pro definici možností
      */
     options: Option[];
     /**
@@ -89,6 +93,7 @@ export type Poll = {
      * Čas, kdy hlasování končí
      */
     end: string;
+    title: string;
 }
 
 /** #regionend DataTypesDatabase */

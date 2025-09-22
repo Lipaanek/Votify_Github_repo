@@ -179,26 +179,64 @@ export class Database {
      * Přidá hlasování do určité skupiny
      * @param poll data hlasování, @see {@link Poll}
      * @param groupId unikátní ID skupiny, kde přidat hlasování
-     * 
+     * @returns number, unikátní id hlasování
+     *
      * @example
      * ```typescript
-     * const pollData = { votes: 0, end: "2025-10-14T15:43:11.092Z" };
+     * const pollData = { votes: 0, end: "2025-10-14T15:43:11.092Z", title: "Test Poll" };
      * const groupId = 1 // příklad ID skupiny
-     * 
-     * db.addPollToGroup(pollData, groupId);
+     *
+     * const pollId = db.addPollToGroup(pollData, groupId);
      * ```
      */
-    public async addPollToGroup(poll : {votes: number, end: string}, groupId : number) : Promise<void> {
+    public async addPollToGroup(poll : {votes: number, end: string, title: string}, groupId : number) : Promise<number> {
         assert(this.db, "Database not initialized");
         assert(poll, "Poll does not exist");
         assert(groupId, "GroupId does not exist");
 
-        const pollFinal = {options: [], alreadyVoted: [], ...poll} as Poll;
+        const allPolls = this.db.data.groups.flatMap(g => g.polls);
+        const newId = allPolls.length > 0 ? Math.max(...allPolls.map(p => p.id)) + 1 : 1;
+        const pollFinal = {id: newId, options: [], alreadyVoted: [], ...poll} as Poll;
         const group = this.db.data.groups.find(group => group.id === groupId);
         if(!group || !pollFinal) { assert(group, "Group or poll does not exist"); }
 
         group?.polls.push(pollFinal);
         await this.db.write();
+        return newId;
+    }
+
+    /**
+     * Získá hlasování podle ID
+     * @param pollId unikátní ID hlasování
+     * @returns Poll nebo null
+     */
+    public async getPollById(pollId: number): Promise<Poll | null> {
+        assert(this.db, "Database not initialized");
+        for (const group of this.db.data.groups) {
+            const poll = group.polls.find(p => p.id === pollId);
+            if (poll) {
+                return poll;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Přidá možnost do hlasování
+     * @param pollId unikátní ID hlasování
+     * @param option možnost k přidání
+     */
+    public async addOptionToPoll(pollId: number, option: { optionName: string; optionDescription?: string }): Promise<void> {
+        assert(this.db, "Database not initialized");
+        for (const group of this.db.data.groups) {
+            const poll = group.polls.find(p => p.id === pollId);
+            if (poll) {
+                poll.options.push({ ...option, votes: 0 });
+                await this.db.write();
+                return;
+            }
+        }
+        throw new Error("Poll not found");
     }
 }
 

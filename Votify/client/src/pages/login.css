@@ -281,22 +281,22 @@ body {
 }
 
 .login-button {
-  position: inherit;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  color: white;
-  border: 2px solid transparent; /* matches input's border */
-  padding: 0.875rem 1rem;        /* same horizontal padding as input */
-  border-radius: var(--border-radius-md); /* same as input */
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  margin-bottom: 1.5rem;
-  padding-right: 20rem;
-  box-shadow: var(--shadow-md);
-  display: block;
-  box-sizing: border-box;        /* make sure borders are included */
+    position: inherit;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    color: white;
+    border: 2px solid transparent; /* matches input's border */
+    padding: 0.875rem 1rem;        /* same padding as input */
+    border-radius: var(--border-radius-md); /* same as input */
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-wrap: initial;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-md);
+    display: block;
+    box-sizing: border-box;        /* make sure borders are included */
 }
 
 

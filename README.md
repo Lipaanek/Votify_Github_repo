@@ -1,2 +1,2 @@
 # Votify_Github_repo
-official votify service github repoi
+official vox service github repositář

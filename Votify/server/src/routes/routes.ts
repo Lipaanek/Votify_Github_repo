@@ -131,5 +131,87 @@ router.post('/api/group', async (req: Request, res: Response) => {
     }
 });
 
+router.post('/api/poll', async (req: Request, res: Response) => {
+    if (!dbExists()) { return; }
+    const cookie = req.cookies.session;
+    if (!cookie) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const email = await validateCookie(cookie);
+    if (!email) {
+        return res.status(401).json({ error: 'Invalid session' });
+    }
+
+    const { groupId, title, end } = req.body;
+    if (!groupId || !title || !end) {
+        return res.status(400).json({ error: 'Group ID, title, and end date are required' });
+    }
+
+    try {
+        const pollId = await dbInstance.addPollToGroup({ votes: 0, end, title }, groupId);
+        res.json({ message: 'Poll created', pollId });
+    } catch (err) {
+        console.error('Error creating poll:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/api/poll/:pollId', async (req: Request, res: Response) => {
+    if (!dbExists()) { return; }
+    const cookie = req.cookies.session;
+    if (!cookie) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const email = await validateCookie(cookie);
+    if (!email) {
+        return res.status(401).json({ error: 'Invalid session' });
+    }
+
+    const pollId = parseInt(req.params.pollId);
+    if (isNaN(pollId)) {
+        return res.status(400).json({ error: 'Invalid poll ID' });
+    }
+
+    try {
+        const poll = await dbInstance.getPollById(pollId);
+        if (!poll) {
+            return res.status(404).json({ error: 'Poll not found' });
+        }
+        res.json({ poll });
+    } catch (err) {
+        console.error('Error fetching poll:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/api/poll/:pollId/option', async (req: Request, res: Response) => {
+    if (!dbExists()) { return; }
+    const cookie = req.cookies.session;
+    if (!cookie) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const email = await validateCookie(cookie);
+    if (!email) {
+        return res.status(401).json({ error: 'Invalid session' });
+    }
+
+    const pollId = parseInt(req.params.pollId);
+    if (isNaN(pollId)) {
+        return res.status(400).json({ error: 'Invalid poll ID' });
+    }
+
+    const { optionName, optionDescription } = req.body;
+    if (!optionName) {
+        return res.status(400).json({ error: 'Option name is required' });
+    }
+
+    try {
+        await dbInstance.addOptionToPoll(pollId, { optionName, optionDescription });
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error adding option:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 export default router;
