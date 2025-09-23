@@ -238,6 +238,37 @@ export class Database {
         }
         throw new Error("Poll not found");
     }
+
+    /**
+     * Získá všechna hlasování pro uživatele s názvem skupiny
+     * @param email email uživatele
+     * @returns Pole hlasování s názvem skupiny
+     */
+    public async getPollsForUser(email: string): Promise<{ poll: Poll; groupName: string }[]> {
+        assert(this.db, "Database not initialized");
+        const userGroups = this.db.data.userGroups.filter(ug => ug.userEmail === email);
+        const pollsWithGroup: { poll: Poll; groupName: string }[] = [];
+        for (const ug of userGroups) {
+            const group = this.db.data.groups.find(g => g.id === ug.groupId);
+            if (group) {
+                for (const poll of group.polls) {
+                    pollsWithGroup.push({ poll, groupName: group.name });
+                }
+            }
+        }
+        return pollsWithGroup;
+    }
+
+    /**
+     * Získá všechna hlasování pro skupinu
+     * @param groupId ID skupiny
+     * @returns Pole hlasování
+     */
+    public async getPollsForGroup(groupId: number): Promise<Poll[]> {
+        assert(this.db, "Database not initialized");
+        const group = this.db.data.groups.find(g => g.id === groupId);
+        return group ? group.polls : [];
+    }
 }
 
 

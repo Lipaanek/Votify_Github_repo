@@ -4,9 +4,15 @@ import logo from '../assets/voxplatform_logo.png';
 import './dashboard.css';
 
 interface ActivePoll {
-  id: number;
+  poll: {
+    id: number;
+    title: string;
+    end: string;
+    votes: number;
+    options: any[];
+    alreadyVoted: string[];
+  };
   groupName: string;
-  votes: number;
 }
 
 interface Group {
@@ -35,7 +41,7 @@ export default function DashboardPage() {
           setAuthenticated(true);
           setEmail(data.email);
           // Fetch dashboard data
-          fetchActivePolls();
+          fetchActivePolls(data.email);
           fetchJoinedGroups(data.email);
         } else {
           navigate('/login');
@@ -44,14 +50,22 @@ export default function DashboardPage() {
       .catch(() => navigate('/login'));
   }, [navigate]);
 
-  const fetchActivePolls = () => {
-    // For now, mock data since polls are not implemented
-    setActivePolls([
-      { id: 1, groupName: 'School Council', votes: 15 },
-      { id: 2, groupName: 'Company Board', votes: 8 },
-      { id: 3, groupName: 'Company Board', votes: 8 },
-      { id: 4, groupName: 'Company Board', votes: 8 },
-    ]);
+  const fetchActivePolls = (userEmail: string) => {
+    fetch(`http://localhost:3000/api/info/polls?email=${encodeURIComponent(userEmail)}`, {
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.polls) {
+          setActivePolls(data.polls);
+        } else {
+          setActivePolls([]);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching polls:', err);
+        setActivePolls([]);
+      });
   };
 
   const fetchJoinedGroups = (userEmail: string) => {
@@ -108,13 +122,14 @@ export default function DashboardPage() {
               </div>
             ) : (
               activePolls.map(poll => (
-                <div key={poll.id} className="poll-card">
+                <div key={poll.poll.id} className="poll-card">
                   <div className="card-top">
-                    <h3>{poll.groupName.toUpperCase()}</h3>
+                    <h3>{poll.poll.title}</h3>
+                    <p>{poll.groupName}</p>
                   </div>
                   <div className="card-bottom">
-                    <button className="enter-button poll-enter">Enter</button>
-                    <p>{poll.votes} votes</p>
+                    <button className="enter-button poll-enter" onClick={() => navigate(`/view-poll/${poll.poll.id}`)}>Enter</button>
+                    <p>{poll.poll.votes} votes</p>
                   </div>
                 </div>
               ))

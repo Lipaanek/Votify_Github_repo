@@ -10,6 +10,15 @@ interface Group {
   members: number;
 }
 
+interface Poll {
+  id: number;
+  title: string;
+  end: string;
+  votes: number;
+  options: any[];
+  alreadyVoted: string[];
+}
+
 export default function GroupPage() {
   const navigate = useNavigate();
   const { groupId } = useParams<{ groupId: string }>();
@@ -17,6 +26,7 @@ export default function GroupPage() {
   const [email, setEmail] = useState('');
   const [isMember, setIsMember] = useState(false);
   const [group, setGroup] = useState<Group | null>(null);
+  const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,6 +67,7 @@ export default function GroupPage() {
               description: userGroup.description || '',
               members: 0 // Placeholder
             });
+            fetchPolls();
           } else {
             setIsMember(false);
           }
@@ -66,6 +77,22 @@ export default function GroupPage() {
       .catch(err => {
         console.error('Error fetching group:', err);
         setLoading(false);
+      });
+  };
+
+  const fetchPolls = () => {
+    if (!groupId) return;
+    fetch(`http://localhost:3000/api/group/${groupId}/polls`, {
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.polls) {
+          setPolls(data.polls);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching polls:', err);
       });
   };
 
@@ -118,9 +145,26 @@ export default function GroupPage() {
         {/* Polls */}
         <div className="dashboard-section">
           <h2>Polls</h2>
-          <div className="no-data">
-            <h3>Polls Coming Soon</h3>
-            <p>Polls functionality is under development.</p>
+          <div className="group-polls-list">
+            {polls.length === 0 ? (
+              <div className="no-data">
+                <h3>No Polls</h3>
+                <p>Create a poll to get started!</p>
+              </div>
+            ) : (
+              polls.map(poll => (
+                <div key={poll.id} className="group-poll-card">
+                  <div className="card-top">
+                    <h3>{poll.title}</h3>
+                    <p className="poll-end-date">Ends: {new Date(poll.end).toLocaleDateString()}</p>
+                  </div>
+                  <div className="card-bottom">
+                    <button className="enter-button poll-enter" onClick={() => navigate(`/view-poll/${poll.id}`)}>Enter</button>
+                    <p>{poll.votes} votes</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

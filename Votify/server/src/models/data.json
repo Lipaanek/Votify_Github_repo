@@ -27,6 +27,30 @@
           "votes": 0,
           "end": "2025-09-22T20:05:00.000Z",
           "title": "Test Poll"
+        },
+        {
+          "id": 2,
+          "options": [
+            {
+              "optionName": "One",
+              "optionDescription": "Hello there",
+              "votes": 0
+            },
+            {
+              "optionName": "Two",
+              "optionDescription": "Nothing to see there",
+              "votes": 0
+            },
+            {
+              "optionName": "Three",
+              "optionDescription": "What do you want?",
+              "votes": 0
+            }
+          ],
+          "alreadyVoted": [],
+          "votes": 0,
+          "end": "2025-09-23T16:15:00.000Z",
+          "title": "Testing poll"
         }
       ],
       "name": "test3",

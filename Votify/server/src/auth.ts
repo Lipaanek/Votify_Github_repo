@@ -23,7 +23,6 @@ export async function initializeEmailDB(): Promise<void> {
 
   db.data ||= defaultData;
 
-  // Write back to create the file if it didn't exist
   await db.write();
 }
 

@@ -214,4 +214,42 @@ router.post('/api/poll/:pollId/option', async (req: Request, res: Response) => {
     }
 });
 
+router.get('/api/info/polls', async (req: Request, res: Response) => {
+    const email = req.query.email as string;
+    if (!dbExists() || !email) { return; }
+
+    try {
+        const polls = await dbInstance.getPollsForUser(email);
+        res.json({ polls });
+    } catch (err) {
+        console.error('Error fetching polls:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/api/group/:groupId/polls', async (req: Request, res: Response) => {
+    if (!dbExists()) { return; }
+    const cookie = req.cookies.session;
+    if (!cookie) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const email = await validateCookie(cookie);
+    if (!email) {
+        return res.status(401).json({ error: 'Invalid session' });
+    }
+
+    const groupId = parseInt(req.params.groupId);
+    if (isNaN(groupId)) {
+        return res.status(400).json({ error: 'Invalid group ID' });
+    }
+
+    try {
+        const polls = await dbInstance.getPollsForGroup(groupId);
+        res.json({ polls });
+    } catch (err) {
+        console.error('Error fetching polls:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 export default router;
