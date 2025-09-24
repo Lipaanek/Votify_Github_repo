@@ -3,59 +3,68 @@
     {
       "email": "lipaanek@gmail.com",
       "name": ""
+    },
+    {
+      "email": "lipovskymatyas@gmail.com",
+      "name": ""
     }
   ],
   "groups": [
     {
       "id": 3,
+      "polls": [],
+      "name": "test3",
+      "description": "",
+      "last_use": "2025-09-16T18:01:08.589Z"
+    },
+    {
+      "id": 4,
+      "polls": [],
+      "name": "Test group two",
+      "description": "woah",
+      "last_use": "2025-09-24T17:13:19.830Z"
+    },
+    {
+      "id": 5,
       "polls": [
         {
           "id": 1,
           "options": [
             {
-              "optionName": "One",
-              "optionDescription": "Nah bro",
+              "optionName": "one",
+              "optionDescription": "ss",
               "votes": 0
             },
             {
-              "optionName": "Two",
-              "optionDescription": "Why?",
+              "optionName": "two",
+              "optionDescription": "cool",
+              "votes": 0
+            },
+            {
+              "optionName": "three",
+              "optionDescription": "qqsqs",
+              "votes": 0
+            },
+            {
+              "optionName": "four",
+              "optionDescription": "qsqs",
+              "votes": 0
+            },
+            {
+              "optionName": "five",
+              "optionDescription": "qqs",
               "votes": 0
             }
           ],
           "alreadyVoted": [],
           "votes": 0,
-          "end": "2025-09-22T20:05:00.000Z",
-          "title": "Test Poll"
-        },
-        {
-          "id": 2,
-          "options": [
-            {
-              "optionName": "One",
-              "optionDescription": "Hello there",
-              "votes": 0
-            },
-            {
-              "optionName": "Two",
-              "optionDescription": "Nothing to see there",
-              "votes": 0
-            },
-            {
-              "optionName": "Three",
-              "optionDescription": "What do you want?",
-              "votes": 0
-            }
-          ],
-          "alreadyVoted": [],
-          "votes": 0,
-          "end": "2025-09-23T16:15:00.000Z",
-          "title": "Testing poll"
+          "end": "2025-09-24T17:55:00.000Z",
+          "title": "lol"
         }
       ],
-      "name": "test3",
-      "description": "",
-      "last_use": "2025-09-16T18:01:08.589Z"
+      "name": "testing group",
+      "description": "qqsqsqs",
+      "last_use": "2025-09-24T17:42:15.515Z"
     }
   ],
   "userGroups": [
@@ -63,6 +72,36 @@
       "userEmail": "lipaanek@gmail.com",
       "groupId": 3,
       "role": "admin"
+    },
+    {
+      "userEmail": "lipovskymatyas@gmail.com",
+      "groupId": 3,
+      "role": "member"
+    },
+    {
+      "userEmail": "lipovskymatyas@gmail.com",
+      "groupId": 3,
+      "role": "member"
+    },
+    {
+      "userEmail": "lipovskymatyas@gmail.com",
+      "groupId": 4,
+      "role": "member"
+    },
+    {
+      "userEmail": "lipaanek@gmail.com",
+      "groupId": 4,
+      "role": "member"
+    },
+    {
+      "userEmail": "lipaanek@gmail.com",
+      "groupId": 5,
+      "role": "admin"
+    },
+    {
+      "userEmail": "lipovskymatyas@gmail.com",
+      "groupId": 5,
+      "role": "member"
     }
   ]
 }

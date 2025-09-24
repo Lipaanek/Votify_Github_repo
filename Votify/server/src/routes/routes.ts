@@ -6,11 +6,15 @@ import { Database } from "../models/db"
 const router = Router();
 
 const dbInstance = new Database();
-dbInstance.init().then(() => {
+dbInstance.init().then(async () => {
     console.log("Database initialized");
+    // Check for expired polls on startup
+    await dbInstance.checkPollDates();
 }).catch(err => {
     console.error("Error initializing database:", err);
 });
+
+dbInstance.startPollChecker();
 
 export function dbExists() {
     return dbInstance !== null;
@@ -248,6 +252,128 @@ router.get('/api/group/:groupId/polls', async (req: Request, res: Response) => {
         res.json({ polls });
     } catch (err) {
         console.error('Error fetching polls:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/api/group/:groupId/info', async (req: Request, res: Response) => {
+    if (!dbExists()) { return; }
+    const cookie = req.cookies.session;
+    if (!cookie) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const email = await validateCookie(cookie);
+    if (!email) {
+        return res.status(401).json({ error: 'Invalid session' });
+    }
+
+    const groupId = parseInt(req.params.groupId);
+    if (isNaN(groupId)) {
+        return res.status(400).json({ error: 'Invalid group ID' });
+    }
+
+    try {
+        const groupInfo = await dbInstance.getGroupInfo(groupId);
+        if (!groupInfo) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+        res.json({ group: groupInfo });
+    } catch (err) {
+        console.error('Error fetching group info:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/api/group/:groupId/public', async (req: Request, res: Response) => {
+    if (!dbExists()) { return; }
+    const groupId = parseInt(req.params.groupId);
+    if (isNaN(groupId)) {
+        return res.status(400).json({ error: 'Invalid group ID' });
+    }
+
+    try {
+        const groupInfo = await dbInstance.getGroupPublicInfo(groupId);
+        if (!groupInfo) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+        res.json({ group: groupInfo });
+    } catch (err) {
+        console.error('Error fetching group public info:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/api/group/:groupId/join', async (req: Request, res: Response) => {
+    if (!dbExists() || !dbInstance.isReady()) { return res.status(500).json({ error: 'Database not ready' }); }
+    const cookie = req.cookies.session;
+    if (!cookie) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const email = await validateCookie(cookie);
+    if (!email) {
+        return res.status(401).json({ error: 'Invalid session' });
+    }
+
+    const groupId = parseInt(req.params.groupId);
+    if (isNaN(groupId)) {
+        return res.status(400).json({ error: 'Invalid group ID' });
+    }
+
+    try {
+        // Ensure user exists in database
+        const userExists = await dbInstance.doesUserExist(email);
+        if (!userExists) {
+            await dbInstance.addUser({ email, name: '' });
+        }
+
+        // Check if group exists
+        const groupInfo = await dbInstance.getGroupPublicInfo(groupId);
+        if (!groupInfo) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+
+        // Check if already member
+        const userGroups = await dbInstance.getUserInfo(email);
+        if (userGroups && userGroups.userGroups.some(g => g.id === groupId)) {
+            return res.status(400).json({ error: 'Already a member of this group' });
+        }
+
+        // Add user to group
+        await dbInstance.addUserToGroup(email, groupId, 'member');
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error joining group:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/api/poll/:pollId/vote', async (req: Request, res: Response) => {
+    if(!dbExists()) { return; }
+    const cookie = req.cookies.session;
+    if (!cookie) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    const email = await validateCookie(cookie);
+    if (!email) {
+        return res.status(401).json({ error: 'Invalid session' });
+    }
+
+    const pollId = parseInt(req.params.pollId);
+    if(isNaN(pollId)) {
+        return res.status(400).json({ error: 'Invalid poll ID' });
+    }
+
+    const { optionName } = req.body;
+    if(!optionName) {
+        return res.status(400).json({ error: 'Option name is required' });
+    }
+
+    try {
+        await dbInstance.addVoteToPollOption(email, pollId, optionName);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error voting:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

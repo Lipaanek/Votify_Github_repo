@@ -28,6 +28,7 @@ export default function GroupPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -61,13 +62,27 @@ export default function GroupPage() {
           const userGroup = data.userGroups.find((g: any) => g.id === parseInt(groupId));
           if (userGroup) {
             setIsMember(true);
-            setGroup({
-              id: userGroup.id,
-              name: userGroup.name,
-              description: userGroup.description || '',
-              members: 0 // Placeholder
-            });
-            fetchPolls();
+            // Fetch detailed group info
+            fetch(`http://localhost:3000/api/group/${groupId}/info`, {
+              credentials: 'include'
+            })
+              .then(res => res.json())
+              .then(infoData => {
+                if (infoData.group) {
+                  setGroup(infoData.group);
+                }
+                fetchPolls();
+              })
+              .catch(err => {
+                console.error('Error fetching group info:', err);
+                setGroup({
+                  id: userGroup.id,
+                  name: userGroup.name,
+                  description: userGroup.description || '',
+                  members: 0
+                });
+                fetchPolls();
+              });
           } else {
             setIsMember(false);
           }
@@ -94,6 +109,25 @@ export default function GroupPage() {
       .catch(err => {
         console.error('Error fetching polls:', err);
       });
+  };
+
+  const copyJoinLink = () => {
+    const joinLink = `${window.location.origin}/join/${groupId}`;
+    navigator.clipboard.writeText(joinLink).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    }).catch(err => {
+      console.error('Failed to copy link:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = joinLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    });
   };
 
   if (!authenticated || loading) {
@@ -140,11 +174,17 @@ export default function GroupPage() {
           <h2>{group?.name}</h2>
           <p>{group?.description}</p>
           <p>Members: {group?.members}</p>
+          <button className="button" onClick={copyJoinLink}>
+            {linkCopied ? 'Link Copied!' : 'Copy Join Link'}
+          </button>
         </div>
 
         {/* Polls */}
         <div className="dashboard-section">
-          <h2>Polls</h2>
+          <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2>Polls</h2>
+            <button className="button" onClick={() => navigate(`/create-poll/${groupId}`)}>Create Poll</button>
+          </div>
           <div className="group-polls-list">
             {polls.length === 0 ? (
               <div className="no-data">

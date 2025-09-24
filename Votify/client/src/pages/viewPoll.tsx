@@ -21,6 +21,7 @@ export default function ViewPollPage() {
   const navigate = useNavigate();
   const { pollId } = useParams<{ pollId: string }>();
   const [authenticated, setAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,6 +34,7 @@ export default function ViewPollPage() {
       .then(data => {
         if (data.authenticated) {
           setAuthenticated(true);
+          setUserEmail(data.email);
           fetchPoll();
         } else {
           navigate('/login');
@@ -60,6 +62,39 @@ export default function ViewPollPage() {
         alert('Error loading poll');
       })
       .finally(() => setLoading(false));
+  };
+
+  const shuffleArray = (array: any[]) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const voteForOption = (optionName: string) => {
+    if (!pollId) return;
+    fetch(`http://localhost:3000/api/poll/${pollId}/vote`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ optionName }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          fetchPoll(); // Refetch to update votes and alreadyVoted
+        } else {
+          alert('Error voting');
+        }
+      })
+      .catch(err => {
+        console.error('Error voting:', err);
+        alert('Error voting');
+      });
   };
 
   if (!authenticated || loading) {
@@ -96,13 +131,21 @@ export default function ViewPollPage() {
             <h2 className="form-title">Options</h2>
             <div className="options-list">
               {poll.options.length === 0 ? (
-                <p>No options yet. Add some!</p>
+                <p style={{ textAlign: 'center' }}>No options yet. Add some!</p>
               ) : (
-                poll.options.map((option, index) => (
+                shuffleArray(poll.options).map((option, index) => (
                   <div key={index} className="option-item">
                     <h3>{option.optionName}</h3>
                     {option.optionDescription && <p>{option.optionDescription}</p>}
                     <p>Votes: {option.votes}</p>
+                    <button
+                      className="button login-button"
+                      onClick={() => voteForOption(option.optionName)}
+                      disabled={poll.alreadyVoted.includes(userEmail) || new Date(poll.end) <= new Date()}
+                      style={{ opacity: (poll.alreadyVoted.includes(userEmail) || new Date(poll.end) <= new Date()) ? 0.5 : 1 }}
+                    >
+                      {new Date(poll.end) <= new Date() ? "Poll Ended" : "Vote"}
+                    </button>
                   </div>
                 ))
               )}

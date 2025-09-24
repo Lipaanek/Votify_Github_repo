@@ -1,9 +1,13 @@
 import { Low } from "lowdb";
 import { JSONFile } from "lowdb/node";
 import path from "path";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
 import { Data, User, InfoRequest, Group, Poll } from "../types/Data";
 import { assert, warn } from "console";
+
+dotenv.config();
 
 
 const filePath = path.resolve(__dirname, "data.json");
@@ -231,6 +235,9 @@ export class Database {
         for (const group of this.db.data.groups) {
             const poll = group.polls.find(p => p.id === pollId);
             if (poll) {
+                const existingOptions = poll.options.filter(p => p.optionName === option.optionName)
+                if(existingOptions.length > 0) { return; }
+
                 poll.options.push({ ...option, votes: 0 });
                 await this.db.write();
                 return;
@@ -260,6 +267,50 @@ export class Database {
     }
 
     /**
+     * Zaregistruje volbu uživatele
+     * @param email email uživatele
+     * @param pollId unikátní id hlasování, @see {@link Poll}
+     * @param optionName unikátní jméno určitého
+     * @returns void
+     */
+    public async addVoteToPollOption(email: string, pollId: number, optionName: string): Promise<void> {
+        assert(this.db.data, "Database not initialized");
+
+        // Find the group containing this poll
+        let targetGroup = null;
+        for (const group of this.db.data.groups) {
+            const poll = group.polls.find(p => p.id === pollId);
+            if (poll) {
+                targetGroup = group;
+                break;
+            }
+        }
+        if (!targetGroup) { return; }
+
+        // Check if user is in this group
+        const userGroup = this.db.data.userGroups.find(ug => ug.userEmail === email && ug.groupId === targetGroup.id);
+        if (!userGroup) { return; }
+
+        const poll = targetGroup.polls.find(p => p.id === pollId);
+        if (!poll) { return; }
+
+        // Check if poll has ended
+        if (new Date(poll.end) <= new Date()) { return; }
+
+        // Check if already voted
+        if (poll.alreadyVoted.includes(email)) { return; }
+
+        const option = poll.options.find(o => o.optionName === optionName);
+        if (!option) { return; }
+
+        poll.alreadyVoted.push(email);
+        option.votes += 1;
+        poll.votes += 1;
+
+        await this.db.write();
+    }
+
+    /**
      * Získá všechna hlasování pro skupinu
      * @param groupId ID skupiny
      * @returns Pole hlasování
@@ -268,6 +319,87 @@ export class Database {
         assert(this.db, "Database not initialized");
         const group = this.db.data.groups.find(g => g.id === groupId);
         return group ? group.polls : [];
+    }
+
+    public async getGroupInfo(groupId: number): Promise<{ id: number; name: string; description: string; members: number } | null> {
+        assert(this.db.data, "Database not initialized");
+        const group = this.db.data.groups.find(g => g.id === groupId);
+        if (!group) return null;
+        const members = this.db.data.userGroups.filter(ug => ug.groupId === groupId).length;
+        return { id: group.id, name: group.name, description: group.description, members };
+    }
+
+    public async getGroupPublicInfo(groupId: number): Promise<{ id: number; name: string; description: string } | null> {
+        assert(this.db.data, "Database not initialized");
+        const group = this.db.data.groups.find(g => g.id === groupId);
+        if (!group) return null;
+        return { id: group.id, name: group.name, description: group.description };
+    }
+
+    private async sendPollResultsEmail(adminEmail: string, poll: Poll, groupName: string): Promise<void> {
+        try {
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: process.env.MAIL_USER,
+                    pass: process.env.MAIL_PASS,
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            });
+
+            let resultsText = `Poll "${poll.title}" in group "${groupName}" has ended.\n\nResults:\n`;
+            for (const option of poll.options) {
+                resultsText += `${option.optionName}: ${option.votes} votes\n`;
+            }
+            resultsText += `\nTotal votes: ${poll.votes}`;
+
+            const info = await transporter.sendMail({
+                from: `"VoxPlatform Poll Results" <${process.env.MAIL_USER}>`,
+                to: adminEmail,
+                subject: `Poll Results: ${poll.title}`,
+                text: resultsText,
+            });
+
+            console.log("Poll results email sent:", info.response);
+        } catch (error) {
+            console.error("Error sending poll results email:", error);
+        }
+    }
+
+    public async checkPollDates() : Promise<void> {
+        assert(this.db.data, "Database not initialized");
+        const now = new Date();
+        for (const group of this.db.data.groups) {
+            for (let i = group.polls.length - 1; i >= 0; i--) {
+                const poll = group.polls[i];
+                if (new Date(poll.end) <= now) {
+                    // Find admins
+                    const admins = this.db.data.userGroups.filter(ug => ug.groupId === group.id && ug.role === "admin");
+                    for (const admin of admins) {
+                        await this.sendPollResultsEmail(admin.userEmail, poll, group.name);
+                    }
+                    // Delete poll
+                    group.polls.splice(i, 1);
+                }
+            }
+        }
+        await this.db.write();
+    }
+
+    public isReady(): boolean {
+        return !!this.db.data;
+    }
+
+    public startPollChecker(intervalMs: number = 60000): void {
+        setInterval(async () => {
+            try {
+                await this.checkPollDates();
+            } catch (error) {
+                console.error("Error in poll checker:", error);
+            }
+        }, intervalMs);
     }
 }
 

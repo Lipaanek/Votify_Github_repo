@@ -16,6 +16,7 @@ import express, { Express } from "express";
 
 import { initializeEmailDB } from './auth';
 import { initializeCookiesDB } from './cookies';
+
 /**
  * Hlavní vstupní bod serverové aplikace.
  * Nastavuje a spouští Express server.

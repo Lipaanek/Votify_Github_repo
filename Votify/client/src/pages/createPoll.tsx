@@ -1,6 +1,6 @@
 import './login.css';
 import logo from '../assets/voxplatform_logo.png';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 interface Group {
@@ -11,6 +11,7 @@ interface Group {
 
 export default function CreatePollPage() {
   const navigate = useNavigate();
+  const { groupId } = useParams<{ groupId?: string }>();
   const [authenticated, setAuthenticated] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<number | ''>('');
@@ -45,6 +46,12 @@ export default function CreatePollPage() {
       .then(data => {
         if (data.userGroups) {
           setGroups(data.userGroups);
+          if (groupId) {
+            const group = data.userGroups.find((g: Group) => g.id === parseInt(groupId));
+            if (group) {
+              setSelectedGroupId(group.id);
+            }
+          }
         }
       })
       .catch(err => {

@@ -246,6 +246,52 @@ body {
   color: var(--color-text-muted);
 }
 
+.form-group select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  transition: all 0.3s ease;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-group select option {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* Group Preview */
+.group-preview {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.group-preview h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.group-preview p {
+  margin: 0.25rem 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
 .form-group textarea {
   width: 100%;
   padding: 0.875rem 1rem;

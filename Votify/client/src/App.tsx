@@ -8,6 +8,7 @@ import DashboardPage from './pages/dashboard';
 import GroupPage from './pages/group';
 import CreateGroupPage from './pages/createGroup';
 import CreatePollPage from './pages/createPoll';
+import JoinGroupPage from './pages/joinGroup';
 import ViewPollPage from './pages/viewPoll';
 import AddOptionPage from './pages/addOption';
 
@@ -22,7 +23,8 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/group/:groupId" element={<GroupPage />} />
         <Route path="/create-group" element={<CreateGroupPage />} />
-        <Route path="/create-poll" element={<CreatePollPage />} />
+        <Route path="/join/:groupId?" element={<JoinGroupPage />} />
+        <Route path="/create-poll/:groupId?" element={<CreatePollPage />} />
         <Route path="/view-poll/:pollId" element={<ViewPollPage />} />
         <Route path="/add-option/:pollId" element={<AddOptionPage />} />
       </Routes>

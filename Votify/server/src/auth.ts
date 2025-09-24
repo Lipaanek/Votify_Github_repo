@@ -32,7 +32,7 @@ export function generateVerificationCode(): string {
 }
 
 export async function saveVerificationCode(email: string, code: string) {
-  if (!db) { initializeEmailDB(); }
+  if (!db) { await initializeEmailDB(); }
 
   await db.read();
   db.data ||= { code: [] };
@@ -44,7 +44,7 @@ export async function saveVerificationCode(email: string, code: string) {
 }
 
 export async function deleteVerificationCode(email: string) {
-  if (!db) { initializeEmailDB(); }
+  if (!db) { await initializeEmailDB(); }
 
   await db.read();
   db.data ||= { code: [] };
@@ -54,7 +54,7 @@ export async function deleteVerificationCode(email: string) {
 }
 
 export async function incrementAttempt(email: string) {
-  if (!db) { initializeEmailDB(); }
+  if (!db) { await initializeEmailDB(); }
 
   await db.read();
   db.data ||= { code: [] };
@@ -67,7 +67,7 @@ export async function incrementAttempt(email: string) {
 }
 
 export async function getAttempts(email: string): Promise<number | null> {
-  if (!db) { initializeEmailDB(); }
+  if (!db) { await initializeEmailDB(); }
 
   await db.read();
   db.data ||= { code: [] };
@@ -80,12 +80,12 @@ export async function getAttempts(email: string): Promise<number | null> {
 }
 
 export async function validateCode(email: string, code: string): Promise<boolean> {
-  if (!db) { initializeEmailDB(); }
+  if (!db) { await initializeEmailDB(); }
   if (await isTimeUpForCode(email)) {
     await deleteVerificationCode(email);
     return false;
   }
-  
+
   await db.read();
   db.data ||= { code: [] };
   const record = db.data.code.find(entry => entry.email === email);
@@ -105,7 +105,7 @@ export async function validateCode(email: string, code: string): Promise<boolean
 }
 
 export async function isTimeUpForCode(email: string): Promise<boolean> {
-  if (!db) { initializeEmailDB(); }
+  if (!db) { await initializeEmailDB(); }
   await db.read();
   db.data ||= { code: [] };
   const record = db.data.code.find(entry => entry.email === email);
@@ -116,7 +116,7 @@ export async function isTimeUpForCode(email: string): Promise<boolean> {
 }
 
 export async function getVerificationCode(email: string): Promise<string | null> {
-  if (!db) { initializeEmailDB(); }
+  if (!db) { await initializeEmailDB(); }
 
   await db.read();
   db.data ||= { code: [] };
