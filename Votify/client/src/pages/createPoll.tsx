@@ -23,7 +23,7 @@ export default function CreatePollPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('http://localhost:3000/api/auth/check', {
+    fetch('http://voxplatform.fit.vutbr.cz:3000/api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
