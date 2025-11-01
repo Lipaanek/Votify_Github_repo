@@ -39,7 +39,7 @@ export default function CreatePollPage() {
   }, [navigate]);
 
   const fetchGroups = (userEmail: string) => {
-    fetch(`http://localhost:3000/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
+    fetch(`http://voxplatform.fit.vutbr.cz:3000/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
       credentials: 'include'
     })
       .then(res => res.json())
