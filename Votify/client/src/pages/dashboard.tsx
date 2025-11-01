@@ -32,7 +32,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('http://localhost:3000/api/auth/check', {
+    fetch('http://voxplatform.fit.vutbr.cz:3000/api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -51,7 +51,7 @@ export default function DashboardPage() {
   }, [navigate]);
 
   const fetchActivePolls = (userEmail: string) => {
-    fetch(`http://localhost:3000/api/info/polls?email=${encodeURIComponent(userEmail)}`, {
+    fetch(`http://voxplatform.fit.vutbr.cz:3000/api/info/polls?email=${encodeURIComponent(userEmail)}`, {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -69,7 +69,7 @@ export default function DashboardPage() {
   };
 
   const fetchJoinedGroups = (userEmail: string) => {
-    fetch(`http://localhost:3000/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
+    fetch(`http://voxplatform.fit.vutbr.cz:3000/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
       credentials: 'include'
     })
       .then(res => res.json())
