@@ -6,18 +6,18 @@ import { JSONFile } from "lowdb/node";
 import path from "path";
 // Update the import path to the correct relative location, for example:
 // If the file exists, ensure it exports VerificationCode:
-import { VerificationCode } from "../src/types/Data";
+import { VerificationCode, Data } from "../src/types/Data";
 
 dotenv.config();
 
 
 const filePath = path.resolve(__dirname, "../models/email_codes.json");
-const adapter = new JSONFile<VerificationCode>(filePath);
-let db : Low<VerificationCode>;
+const adapter = new JSONFile(filePath);
+let db: any;
 
 export async function initializeEmailDB(): Promise<void> {
   const defaultData: VerificationCode = { code: [] };
-  db = new Low<VerificationCode>(adapter, defaultData);
+  db = new Low(adapter, defaultData);
 
   await db.read();
 
@@ -48,7 +48,7 @@ export async function deleteVerificationCode(email: string) {
 
   await db.read();
   db.data ||= { code: [] };
-  db.data.code = db.data.code.filter(entry => entry.email !== email);
+  db.data.code = db.data.code.filter((entry: { email: string; }) => entry.email !== email);
   await db.write();
   console.log(`Deleted verification code for ${email}`);
 }
@@ -58,7 +58,7 @@ export async function incrementAttempt(email: string) {
 
   await db.read();
   db.data ||= { code: [] };
-  const record = db.data.code.find(entry => entry.email === email);
+  const record = db.data.code.find((entry: { email: string; }) => entry.email === email);
   if (record) {
     record.alreadyAttempted += 1;
     await db.write();
@@ -71,7 +71,7 @@ export async function getAttempts(email: string): Promise<number | null> {
 
   await db.read();
   db.data ||= { code: [] };
-  const record = db.data.code.find(entry => entry.email === email);
+  const record = db.data.code.find((entry: { email: string; }) => entry.email === email);
   if (record) {
     return record.alreadyAttempted;
   }
@@ -88,7 +88,7 @@ export async function validateCode(email: string, code: string): Promise<boolean
 
   await db.read();
   db.data ||= { code: [] };
-  const record = db.data.code.find(entry => entry.email === email);
+  const record = db.data.code.find((entry: { email: string; }) => entry.email === email);
   if (record) {
     if (record.code === code && record.expiresAt > Date.now() && record.attempts > 0) {
       console.log(`Code for ${email} is valid.`);
@@ -108,7 +108,7 @@ export async function isTimeUpForCode(email: string): Promise<boolean> {
   if (!db) { await initializeEmailDB(); }
   await db.read();
   db.data ||= { code: [] };
-  const record = db.data.code.find(entry => entry.email === email);
+  const record = db.data.code.find((entry: { email: string; }) => entry.email === email);
   if (record) {
     return record.expiresAt <= Date.now();
   }
@@ -120,7 +120,7 @@ export async function getVerificationCode(email: string): Promise<string | null>
 
   await db.read();
   db.data ||= { code: [] };
-  const record = db.data.code.find(entry => entry.email === email);
+  const record = db.data.code.find((entry: { email: string; }) => entry.email === email);
   if (record) {
     return record.code;
   }
