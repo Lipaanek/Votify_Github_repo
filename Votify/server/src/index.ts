@@ -28,9 +28,14 @@ initializeCookiesDB();
  * Middleware pro zpracování JSON těla požadavků a CORS.
  * Používá se pro povolení požadavků z klientské aplikace běžící na jiném portu.
  */
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true }));
+app.use(cors({ origin: ['http://voxplatform.fit.vutbr.com:5173', 'http://voxplatform.fit.vutbr.com:5174'], credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+});
 
 /**
  * Middleware pro zpracování HTTP požadavků na API.
