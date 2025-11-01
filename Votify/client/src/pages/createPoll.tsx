@@ -81,7 +81,7 @@ export default function CreatePollPage() {
 
     if (valid) {
       setLoading(true);
-      fetch('http://localhost:3000/api/poll', {
+      fetch('http://voxplatform.fit.vutbr.cz:3000/api/poll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
