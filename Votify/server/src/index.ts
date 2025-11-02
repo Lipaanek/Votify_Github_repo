@@ -37,7 +37,7 @@ app.use(cookieParser());
  */
 app.use("/", apiRoutes);
 
-const frontendPath = path.join(__dirname, '../frontend');
+const frontendPath = path.join(__dirname, '../client/dist');
 app.use(express.static(frontendPath));
 
 app.get('*', (req, res) => {

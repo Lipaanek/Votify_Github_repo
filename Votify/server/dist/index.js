@@ -34,7 +34,7 @@ app.use((0, cookie_parser_1.default)());
  * Middleware pro zpracování HTTP požadavků na API.
  */
 app.use("/", routes_1.default);
-const frontendPath = path_1.default.join(__dirname, '../frontend');
+const frontendPath = path_1.default.join(__dirname, '../client/dist');
 app.use(express_1.default.static(frontendPath));
 app.get('*', (req, res) => {
     res.sendFile(path_1.default.join(frontendPath, 'index.html'));
