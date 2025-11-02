@@ -26,42 +26,7 @@
     },
     {
       "id": 5,
-      "polls": [
-        {
-          "id": 1,
-          "options": [
-            {
-              "optionName": "one",
-              "optionDescription": "ss",
-              "votes": 0
-            },
-            {
-              "optionName": "two",
-              "optionDescription": "cool",
-              "votes": 0
-            },
-            {
-              "optionName": "three",
-              "optionDescription": "qqsqs",
-              "votes": 0
-            },
-            {
-              "optionName": "four",
-              "optionDescription": "qsqs",
-              "votes": 0
-            },
-            {
-              "optionName": "five",
-              "optionDescription": "qqs",
-              "votes": 0
-            }
-          ],
-          "alreadyVoted": [],
-          "votes": 0,
-          "end": "2025-09-24T17:55:00.000Z",
-          "title": "lol"
-        }
-      ],
+      "polls": [],
       "name": "testing group",
       "description": "qqsqsqs",
       "last_use": "2025-09-24T17:42:15.515Z"
