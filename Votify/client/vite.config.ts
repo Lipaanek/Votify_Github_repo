@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://voxplatform.fit.vutbr.com:3000',
+        target: 'http://voxplatform.fit.vutbr.cz:3000',
         changeOrigin: true,
       },
     },
