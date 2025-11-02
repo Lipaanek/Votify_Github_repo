@@ -28,30 +28,32 @@ initializeCookiesDB();
  * Middleware pro zpracování JSON těla požadavků a CORS.
  * Používá se pro povolení požadavků z klientské aplikace běžící na jiném portu.
  */
-app.use(cors({ origin: ['http://voxplatform.fit.vutbr.cz:5173', 'http://voxplatform.fit.vutbr.cz:5174'], credentials: true }));
+app.use(cors({ origin: ['http://voxplatform.fit.vutbr.cz'], credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
-
-const frontendPath = path.join(__dirname, '../frontend');
-app.use(express.static(frontendPath));
-
-// For all other routes, return index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
-});
 
 /**
  * Middleware pro zpracování HTTP požadavků na API.
  */
 app.use("/", apiRoutes);
 
+const frontendPath = path.join(__dirname, '../frontend');
+app.use(express.static(frontendPath));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
+
+
 /**
  * Spuštění serveru na portu 3000.
  * Po spuštění vypíše do konzole informaci o běhu serveru.
  */
-app.listen(3000, () => {
+app.listen(3000, '0.0.0.0', () => {
     console.log("Server is running on port 3000");
 });
+
 
 
 //const modelsFolder = path.resolve(__dirname, '../models');
