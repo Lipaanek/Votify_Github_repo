@@ -4,8 +4,8 @@ import path from "path";
 import { CookiesData } from "./types/Data";
 
 const filePath = path.resolve(__dirname, "../db/cookies.json");
-const adapter = new JSONFile<CookiesData>(filePath);
-let db: Low<CookiesData>;
+const adapter = new JSONFile(filePath);
+let db: Low<CookiesData> | undefined;
 
 export async function initializeCookiesDB(): Promise<void> {
   const defaultData: CookiesData = { cookies: [] };
@@ -29,11 +29,12 @@ export function generateCookie(): string {
 
 export async function saveCookie(email: string, cookie: string) {
   if (!db) await initializeCookiesDB();
+  if (!db) throw new Error('Database not initialized');
 
   await db.read();
   db.data ||= { cookies: [] };
 
-  db.data.cookies = db.data.cookies.filter(c => c.email !== email);
+  db.data.cookies = db.data.cookies.filter((c: any) => c.email !== email);
 
   db.data.cookies.push({ email, cookie, expiresAt: Date.now() + 24 * 60 * 60 * 1000 }); // 24 hours
   await db.write();
@@ -42,10 +43,11 @@ export async function saveCookie(email: string, cookie: string) {
 
 export async function getCookieByEmail(email: string): Promise<string | null> {
   if (!db) await initializeCookiesDB();
+  if (!db) throw new Error('Database not initialized');
 
   await db.read();
   db.data ||= { cookies: [] };
-  const record = db.data.cookies.find(c => c.email === email);
+  const record = db.data.cookies.find((c: any) => c.email === email);
   if (record && record.expiresAt > Date.now()) {
     return record.cookie;
   }
@@ -54,10 +56,11 @@ export async function getCookieByEmail(email: string): Promise<string | null> {
 
 export async function validateCookie(cookie: string): Promise<string | null> {
   if (!db) await initializeCookiesDB();
+  if (!db) throw new Error('Database not initialized');
 
   await db.read();
   db.data ||= { cookies: [] };
-  const record = db.data.cookies.find(c => c.cookie === cookie && c.expiresAt > Date.now());
+  const record = db.data.cookies.find((c: any) => c.cookie === cookie && c.expiresAt > Date.now());
   if (record) {
     return record.email;
   }
