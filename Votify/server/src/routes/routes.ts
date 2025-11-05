@@ -110,28 +110,45 @@ router.get('/api/info/groups', async (req: Request, res: Response) => {
 });
 
 router.post('/api/group', async (req: Request, res: Response) => {
-    if (!dbExists()) { return; }
+    console.log('POST request to /api/group');
+    if (!dbExists()) {
+        console.log('Database does not exist');
+        return res.status(500).json({ error: 'Database not available' });
+    }
+    if (!dbInstance.isReady()) {
+        console.log('Database not ready');
+        return res.status(500).json({ error: 'Database not ready' });
+    }
     const cookie = req.cookies.session;
     if (!cookie) {
+        console.log('No session cookie');
         return res.status(401).json({ error: 'Not authenticated' });
     }
     const email = await validateCookie(cookie);
     if (!email) {
+        console.log('Invalid session cookie');
         return res.status(401).json({ error: 'Invalid session' });
     }
+    console.log(`Authenticated user: ${email}`);
 
     const { name, description } = req.body;
+    console.log(`Group creation request: name=${name}, description=${description}`);
     if (!name) {
+        console.log('Group name is required');
         return res.status(400).json({ error: 'Group name is required' });
     }
 
     try {
+        console.log('Attempting to add group to database');
         const groupId = await dbInstance.addGroup({ name, description: description || '', last_use: new Date().toISOString() });
+        console.log(`Group created with ID: ${groupId}`);
+        console.log('Attempting to add user to group');
         await dbInstance.addUserToGroup(email, groupId, 'admin');
+        console.log('User added to group successfully');
         res.json({ message: 'Group created', groupId });
     } catch (err) {
         console.error('Error creating group:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error creating group' });
     }
 });
 

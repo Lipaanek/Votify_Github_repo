@@ -38,7 +38,7 @@ export default function CreateGroupPage() {
 
     if (valid) {
       setLoading(true);
-      fetch('http://voxplatform.fit.vutbr.cz/api/group', {
+      fetch('http://voxplatform.fit.vutbr.cz:3000/api/group', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
