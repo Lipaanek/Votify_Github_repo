@@ -46,8 +46,13 @@ export default function CreateGroupPage() {
         credentials: 'include',
         body: JSON.stringify({ name: name.trim(), description: description.trim() })
       })
-        .then(res => res.json())
+        .then(res => {
+          console.log('Response status:', res.status);
+          console.log('Response headers:', res.headers);
+          return res.json();
+        })
         .then(data => {
+          console.log('Response data:', data);
           if (data.groupId) {
             navigate('/dashboard');
           } else {
@@ -56,7 +61,7 @@ export default function CreateGroupPage() {
         })
         .catch(err => {
           console.error('Error creating group:', err);
-          alert('Error creating group');
+          alert('Error creating group: ' + err.message);
         })
         .finally(() => setLoading(false));
     }
