@@ -27,7 +27,7 @@ export default function ViewPollPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('http://voxplatform.fit.vutbr.cz:3000/api/auth/check', {
+    fetch('//api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -45,7 +45,7 @@ export default function ViewPollPage() {
 
   const fetchPoll = () => {
     if (!pollId) return;
-    fetch(`http://voxplatform.fit.vutbr.cz:3000/api/poll/${pollId}`, {
+    fetch(`//api/poll/${pollId}`, {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -75,7 +75,7 @@ export default function ViewPollPage() {
 
   const voteForOption = (optionName: string) => {
     if (!pollId) return;
-    fetch(`http://voxplatform.fit.vutbr.cz:3000/api/poll/${pollId}/vote`, {
+    fetch(`//api/poll/${pollId}/vote`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

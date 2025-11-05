@@ -13,7 +13,7 @@ export default function CreateGroupPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('http://voxplatform.fit.vutbr.cz:3000/api/auth/check', {
+    fetch('/api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -38,7 +38,7 @@ export default function CreateGroupPage() {
 
     if (valid) {
       setLoading(true);
-      fetch('http://voxplatform.fit.vutbr.cz:3000/api/group', {
+      fetch('/api/group', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

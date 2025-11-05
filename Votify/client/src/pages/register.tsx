@@ -26,7 +26,7 @@ export default function RegisterPage() {
     }
 
     if (valid) {
-      fetch("http://voxplatform.fit.vutbr.cz:3000/api/register?email=" + encodeURIComponent(email), {
+      fetch("//api/register?email=" + encodeURIComponent(email), {
         credentials: 'include'
       }).catch(err => {
         console.error('Error sending registration request:', err);

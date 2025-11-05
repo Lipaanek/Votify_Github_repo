@@ -14,7 +14,7 @@ export default function AddOptionPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('http://voxplatform.fit.vutbr.cz:3000/api/auth/check', {
+    fetch('//api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -39,7 +39,7 @@ export default function AddOptionPage() {
 
     if (valid && pollId) {
       setLoading(true);
-      fetch(`http://voxplatform.fit.vutbr.cz:3000/api/poll/${pollId}/option`, {
+      fetch(`//api/poll/${pollId}/option`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

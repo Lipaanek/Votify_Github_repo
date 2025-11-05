@@ -23,7 +23,7 @@ export default function CreatePollPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('http://voxplatform.fit.vutbr.cz:3000/api/auth/check', {
+    fetch('//api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -39,7 +39,7 @@ export default function CreatePollPage() {
   }, [navigate]);
 
   const fetchGroups = (userEmail: string) => {
-    fetch(`http://voxplatform.fit.vutbr.cz:3000/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
+    fetch(`//api/info/groups?email=${encodeURIComponent(userEmail)}`, {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -81,7 +81,7 @@ export default function CreatePollPage() {
 
     if (valid) {
       setLoading(true);
-      fetch('http://voxplatform.fit.vutbr.cz:3000/api/poll', {
+      fetch('//api/poll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

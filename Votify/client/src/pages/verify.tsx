@@ -42,7 +42,7 @@ export default function VerifyPage() {
     console.log('Verify button clicked');
 
     try {
-      const response = await fetch(`http://voxplatform.fit.vutbr.cz:3000/api/login/code?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`, {
+      const response = await fetch(`//api/login/code?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -65,7 +65,7 @@ export default function VerifyPage() {
   const handleResend = async () => {
     console.log('Resend button clicked');
     try {
-      const response = await fetch(`http://voxplatform.fit.vutbr.cz:3000/api/login?email=${encodeURIComponent(email)}`, {
+      const response = await fetch(`//api/login?email=${encodeURIComponent(email)}`, {
         credentials: 'include'
       });
       if (response.ok) {
