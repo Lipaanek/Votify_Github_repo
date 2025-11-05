@@ -32,7 +32,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('//api/auth/check', {
+    fetch('/api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -51,7 +51,7 @@ export default function DashboardPage() {
   }, [navigate]);
 
   const fetchActivePolls = (userEmail: string) => {
-    fetch(`//api/info/polls?email=${encodeURIComponent(userEmail)}`, {
+    fetch(`/api/info/polls?email=${encodeURIComponent(userEmail)}`, {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -69,7 +69,7 @@ export default function DashboardPage() {
   };
 
   const fetchJoinedGroups = (userEmail: string) => {
-    fetch(`//api/info/groups?email=${encodeURIComponent(userEmail)}`, {
+    fetch(`/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
       credentials: 'include'
     })
       .then(res => res.json())

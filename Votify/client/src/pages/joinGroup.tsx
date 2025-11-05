@@ -20,7 +20,7 @@ export default function JoinGroupPage() {
 
   // Check authentication on mount
   useEffect(() => {
-    fetch('//api/auth/check', {
+    fetch('/api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -49,7 +49,7 @@ export default function JoinGroupPage() {
     setError('');
     setGroup(null);
 
-    fetch(`//api/group/${idToSearch}/public`, {
+    fetch(`/api/group/${idToSearch}/public`, {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -71,7 +71,7 @@ export default function JoinGroupPage() {
     if (!group) return;
 
     setLoading(true);
-    fetch(`//api/group/${group.id}/join`, {
+    fetch(`/api/group/${group.id}/join`, {
       method: 'POST',
       credentials: 'include'
     })

@@ -32,7 +32,7 @@ export default function GroupPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('//api/auth/check', {
+    fetch('/api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -53,7 +53,7 @@ export default function GroupPage() {
     if (!groupId) return;
 
     // First, get user groups to check membership
-    fetch(`//api/info/groups?email=${encodeURIComponent(userEmail)}`, {
+    fetch(`/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -63,7 +63,7 @@ export default function GroupPage() {
           if (userGroup) {
             setIsMember(true);
             // Fetch detailed group info
-            fetch(`//api/group/${groupId}/info`, {
+            fetch(`/api/group/${groupId}/info`, {
               credentials: 'include'
             })
               .then(res => res.json())
@@ -97,7 +97,7 @@ export default function GroupPage() {
 
   const fetchPolls = () => {
     if (!groupId) return;
-    fetch(`//api/group/${groupId}/polls`, {
+    fetch(`/api/group/${groupId}/polls`, {
       credentials: 'include'
     })
       .then(res => res.json())

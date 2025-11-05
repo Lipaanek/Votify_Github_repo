@@ -23,7 +23,7 @@ export default function CreatePollPage() {
 
   useEffect(() => {
     // Check authentication
-    fetch('//api/auth/check', {
+    fetch('/api/auth/check', {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -39,7 +39,7 @@ export default function CreatePollPage() {
   }, [navigate]);
 
   const fetchGroups = (userEmail: string) => {
-    fetch(`//api/info/groups?email=${encodeURIComponent(userEmail)}`, {
+    fetch(`/api/info/groups?email=${encodeURIComponent(userEmail)}`, {
       credentials: 'include'
     })
       .then(res => res.json())
@@ -81,7 +81,7 @@ export default function CreatePollPage() {
 
     if (valid) {
       setLoading(true);
-      fetch('//api/poll', {
+      fetch('/api/poll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

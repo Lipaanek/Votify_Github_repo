@@ -26,7 +26,7 @@ export default function LoginPage() {
     }
 
     if (valid) {
-      fetch("//api/login?email=" + encodeURIComponent(email), {
+      fetch("/api/login?email=" + encodeURIComponent(email), {
         credentials: 'include'
       }).catch(err => {
         console.error('Error sending login request:', err);
