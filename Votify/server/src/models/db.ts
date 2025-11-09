@@ -337,6 +337,9 @@ export class Database {
     }
 
     private async sendPollResultsEmail(adminEmail: string, poll: Poll, groupName: string): Promise<void> {
+        console.log(`Attempting to send poll results email to ${adminEmail} for poll "${poll.title}" in group "${groupName}"`);
+        console.log(`MAIL_USER: ${process.env.MAIL_USER ? 'SET' : 'NOT SET'}`);
+        console.log(`MAIL_PASS: ${process.env.MAIL_PASS ? 'SET' : 'NOT SET'}`);
         try {
             const transporter = nodemailer.createTransport({
                 service: "gmail",
@@ -355,6 +358,9 @@ export class Database {
             }
             resultsText += `\nTotal votes: ${poll.votes}`;
 
+            console.log(`Sending email with subject: Poll Results: ${poll.title}`);
+            console.log(`Email body length: ${resultsText.length} characters`);
+
             const info = await transporter.sendMail({
                 from: `"VoxPlatform Poll Results" <${process.env.MAIL_USER}>`,
                 to: adminEmail,
@@ -362,30 +368,40 @@ export class Database {
                 text: resultsText,
             });
 
-            console.log("Poll results email sent:", info.response);
+            console.log("Poll results email sent successfully:", info.response);
         } catch (error) {
             console.error("Error sending poll results email:", error);
+            console.error("Error details:", error instanceof Error ? error.message : String(error));
+            console.error("Stack trace:", error instanceof Error ? error.stack : 'No stack trace available');
         }
     }
 
     public async checkPollDates() : Promise<void> {
         assert(this.db.data, "Database not initialized");
         const now = new Date();
+        console.log(`Checking for expired polls at ${now.toISOString()}`);
         for (const group of this.db.data.groups) {
+            console.log(`Checking group "${group.name}" (ID: ${group.id}) with ${group.polls.length} polls`);
             for (let i = group.polls.length - 1; i >= 0; i--) {
                 const poll = group.polls[i];
-                if (new Date(poll.end) <= now) {
+                const pollEndDate = new Date(poll.end);
+                console.log(`Poll "${poll.title}" (ID: ${poll.id}) ends at ${pollEndDate.toISOString()}, now is ${now.toISOString()}`);
+                if (pollEndDate <= now) {
+                    console.log(`Poll "${poll.title}" has expired, sending results emails`);
                     // Find admins
                     const admins = this.db.data.userGroups.filter(ug => ug.groupId === group.id && ug.role === "admin");
+                    console.log(`Found ${admins.length} admins for group "${group.name}": ${admins.map(a => a.userEmail).join(', ')}`);
                     for (const admin of admins) {
                         await this.sendPollResultsEmail(admin.userEmail, poll, group.name);
                     }
                     // Delete poll
+                    console.log(`Removing expired poll "${poll.title}" from group "${group.name}"`);
                     group.polls.splice(i, 1);
                 }
             }
         }
         await this.db.write();
+        console.log("Poll date check completed");
     }
 
     public isReady(): boolean {

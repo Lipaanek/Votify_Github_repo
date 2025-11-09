@@ -1,1 +1,2 @@
 *.env
+Votify/server/src/models/data.json
