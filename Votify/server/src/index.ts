@@ -7,6 +7,7 @@
 
 import path from 'path';
 import fs from 'fs';
+import https from 'https';
 
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -22,6 +23,15 @@ import { initializeCookiesDB } from './cookies';
  * Nastavuje a spouští Express server.
  */
 const app: Express = express();
+
+/**
+ * Možnosti pro HTTPS certifikát
+ */
+const options = {
+  key: fs.readFileSync('/etc/letsencrypt/live/voxplatform.fit.vutbr.cz/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/voxplatform.fit.vutbr.cz/fullchain.pem')
+};
+
 initializeEmailDB();
 initializeCookiesDB();
 /**
@@ -47,10 +57,9 @@ app.get('*', (req, res) => {
 
 
 /**
- * Spuštění serveru na portu 3000.
- * Po spuštění vypíše do konzole informaci o běhu serveru.
+ * Spuštění HTTPS serveru na portu 3000.
  */
-app.listen(3000, '0.0.0.0', () => {
+https.createServer(options, app).listen(3000, '0.0.0.0', () => {
     console.log("Server is running on port 3000");
 });
 
