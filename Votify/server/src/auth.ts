@@ -4,8 +4,7 @@ import dotenv from "dotenv";
 import { Low } from "lowdb";
 import { JSONFile } from "lowdb/node";
 import path from "path";
-// Update the import path to the correct relative location, for example:
-// If the file exists, ensure it exports VerificationCode:
+
 import { VerificationCode, Data } from "../src/types/Data";
 
 dotenv.config();
@@ -90,12 +89,12 @@ export async function validateCode(email: string, code: string): Promise<boolean
   db.data ||= { code: [] };
   const record = db.data.code.find((entry: { email: string; }) => entry.email === email);
   if (record) {
-    if (record.code === code && record.expiresAt > Date.now() && record.attempts > 0) {
+    if (record.code === code && record.expiresAt > Date.now() && record.alreadyAttempted < 3) {
       console.log(`Code for ${email} is valid.`);
       await deleteVerificationCode(email);
       return true;
     } else {
-      record.attempts -= 1;
+      record.alreadyAttempted += 1;
       await db.write();
       return false;
     }
@@ -158,7 +157,7 @@ export async function sendVerificationMail(email: string) {
     await saveVerificationCode(email, VERIFICATION_CODE);
   } catch (error) {
     console.error("Error sending email:", error);
-    // Fallback: log the code to console for testing
+
     const VERIFICATION_CODE = generateVerificationCode();
     console.log(`\n=== VERIFICATION CODE FOR ${email} ===`);
     console.log(`Code: ${VERIFICATION_CODE}`);

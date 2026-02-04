@@ -1,7 +1,7 @@
 /**
- * Tento soubor obsahuje hlavní vstupní bod serverové aplikace Votify.
+ * Tento soubor obsahuje hlavní vstupní bod serverové aplikace VoxPlatform.
  * Nastavuje a spouští Express server, který naslouchá na port
- * @module VotifyServer
+ * @module VoxPlatformServer
  * @packageDocumentation
  */
 

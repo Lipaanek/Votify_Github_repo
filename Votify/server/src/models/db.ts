@@ -276,7 +276,6 @@ export class Database {
     public async addVoteToPollOption(email: string, pollId: number, optionName: string): Promise<void> {
         assert(this.db.data, "Database not initialized");
 
-        // Find the group containing this poll
         let targetGroup = null;
         for (const group of this.db.data.groups) {
             const poll = group.polls.find(p => p.id === pollId);
@@ -287,17 +286,14 @@ export class Database {
         }
         if (!targetGroup) { return; }
 
-        // Check if user is in this group
         const userGroup = this.db.data.userGroups.find(ug => ug.userEmail === email && ug.groupId === targetGroup.id);
         if (!userGroup) { return; }
 
         const poll = targetGroup.polls.find(p => p.id === pollId);
         if (!poll) { return; }
 
-        // Check if poll has ended
         if (new Date(poll.end) <= new Date()) { return; }
 
-        // Check if already voted
         if (poll.alreadyVoted.includes(email)) { return; }
 
         const option = poll.options.find(o => o.optionName === optionName);
@@ -321,6 +317,11 @@ export class Database {
         return group ? group.polls : [];
     }
 
+    /**
+     * Funkce získá informace o dané skupině
+     * @param groupId ID skupiny
+     * @returns informace o skupině nebo null
+     */
     public async getGroupInfo(groupId: number): Promise<{ id: number; name: string; description: string; members: number } | null> {
         assert(this.db.data, "Database not initialized");
         const group = this.db.data.groups.find(g => g.id === groupId);
@@ -329,6 +330,11 @@ export class Database {
         return { id: group.id, name: group.name, description: group.description, members };
     }
 
+    /**
+     * Získá "veřejná" data o skupině
+     * @param groupId ID skupiny
+     * @returns informace o skupině, které mohou být veřejně exposed
+     */
     public async getGroupPublicInfo(groupId: number): Promise<{ id: number; name: string; description: string } | null> {
         assert(this.db.data, "Database not initialized");
         const group = this.db.data.groups.find(g => g.id === groupId);
@@ -376,6 +382,9 @@ export class Database {
         }
     }
 
+    /**
+     * Funkce projde veškerá hlasování a porovná datum ukončení s nýnějším časem
+     */
     public async checkPollDates() : Promise<void> {
         assert(this.db.data, "Database not initialized");
         const now = new Date();
@@ -388,13 +397,11 @@ export class Database {
                 console.log(`Poll "${poll.title}" (ID: ${poll.id}) ends at ${pollEndDate.toISOString()}, now is ${now.toISOString()}`);
                 if (pollEndDate <= now) {
                     console.log(`Poll "${poll.title}" has expired, sending results emails`);
-                    // Find admins
                     const admins = this.db.data.userGroups.filter(ug => ug.groupId === group.id && ug.role === "admin");
                     console.log(`Found ${admins.length} admins for group "${group.name}": ${admins.map(a => a.userEmail).join(', ')}`);
                     for (const admin of admins) {
                         await this.sendPollResultsEmail(admin.userEmail, poll, group.name);
                     }
-                    // Delete poll
                     console.log(`Removing expired poll "${poll.title}" from group "${group.name}"`);
                     group.polls.splice(i, 1);
                 }
@@ -408,6 +415,10 @@ export class Database {
         return !!this.db.data;
     }
 
+    /**
+     * Funkce začne s periodickou kontrolou datumů ukončení
+     * @param intervalMs interval opakování v milisekundách, default 60 000
+     */
     public startPollChecker(intervalMs: number = 60000): void {
         setInterval(async () => {
             try {

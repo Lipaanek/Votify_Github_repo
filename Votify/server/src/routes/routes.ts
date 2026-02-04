@@ -8,7 +8,6 @@ const router = Router();
 const dbInstance = new Database();
 dbInstance.init().then(async () => {
     console.log("Database initialized");
-    // Check for expired polls on startup
     await dbInstance.checkPollDates();
 }).catch(err => {
     console.error("Error initializing database:", err);
@@ -70,7 +69,7 @@ router.get('/api/login/code', (req: Request, res: Response) => {
                   httpOnly: true,
                   maxAge: 24 * 60 * 60 * 1000,
                   sameSite: 'lax',
-                  secure: false // Set to true in production with HTTPS
+                  secure: false
                 });
                 res.json({ message: 'Code is valid' });
             } else {
@@ -337,25 +336,21 @@ router.post('/api/group/:groupId/join', async (req: Request, res: Response) => {
     }
 
     try {
-        // Ensure user exists in database
         const userExists = await dbInstance.doesUserExist(email);
         if (!userExists) {
             await dbInstance.addUser({ email, name: '' });
         }
 
-        // Check if group exists
         const groupInfo = await dbInstance.getGroupPublicInfo(groupId);
         if (!groupInfo) {
             return res.status(404).json({ error: 'Group not found' });
         }
 
-        // Check if already member
         const userGroups = await dbInstance.getUserInfo(email);
         if (userGroups && userGroups.userGroups.some(g => g.id === groupId)) {
             return res.status(400).json({ error: 'Already a member of this group' });
         }
 
-        // Add user to group
         await dbInstance.addUserToGroup(email, groupId, 'member');
         res.json({ success: true });
     } catch (err) {

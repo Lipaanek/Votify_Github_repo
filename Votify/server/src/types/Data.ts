@@ -154,7 +154,7 @@ export type VerificationCode = {
     code : Code[];
 }
 
-/** Definuje strukturu cookie pro autentifikaci */
+/** Definuje strukturu cookie pro identifikaci */
 export type Cookie = {
     email: string;
     /** Nahodný string, pro session id, aka cookie */
