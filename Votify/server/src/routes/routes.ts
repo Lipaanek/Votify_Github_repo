@@ -1,4 +1,7 @@
-import {Router, Request, Response} from 'express';
+/**
+ * @module Routes
+ */
+import { Router, Request, Response } from 'express';
 import { sendVerificationMail, validateCode } from '../auth';
 import { generateCookie, saveCookie, validateCookie } from '../cookies';
 import { Database } from "../models/db"
