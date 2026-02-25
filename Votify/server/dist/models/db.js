@@ -4,6 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Database = void 0;
+/**
+ * @module DB
+ */
 const lowdb_1 = require("lowdb");
 const node_1 = require("lowdb/node");
 const path_1 = __importDefault(require("path"));
@@ -257,7 +260,6 @@ class Database {
      */
     async addVoteToPollOption(email, pollId, optionName) {
         (0, console_1.assert)(this.db.data, "Database not initialized");
-        // Find the group containing this poll
         let targetGroup = null;
         for (const group of this.db.data.groups) {
             const poll = group.polls.find(p => p.id === pollId);
@@ -269,7 +271,6 @@ class Database {
         if (!targetGroup) {
             return;
         }
-        // Check if user is in this group
         const userGroup = this.db.data.userGroups.find(ug => ug.userEmail === email && ug.groupId === targetGroup.id);
         if (!userGroup) {
             return;
@@ -278,11 +279,9 @@ class Database {
         if (!poll) {
             return;
         }
-        // Check if poll has ended
         if (new Date(poll.end) <= new Date()) {
             return;
         }
-        // Check if already voted
         if (poll.alreadyVoted.includes(email)) {
             return;
         }
@@ -305,6 +304,11 @@ class Database {
         const group = this.db.data.groups.find(g => g.id === groupId);
         return group ? group.polls : [];
     }
+    /**
+     * Funkce získá informace o dané skupině
+     * @param groupId ID skupiny
+     * @returns informace o skupině nebo null
+     */
     async getGroupInfo(groupId) {
         (0, console_1.assert)(this.db.data, "Database not initialized");
         const group = this.db.data.groups.find(g => g.id === groupId);
@@ -313,6 +317,11 @@ class Database {
         const members = this.db.data.userGroups.filter(ug => ug.groupId === groupId).length;
         return { id: group.id, name: group.name, description: group.description, members };
     }
+    /**
+     * Získá "veřejná" data o skupině
+     * @param groupId ID skupiny
+     * @returns informace o skupině, které mohou být veřejně exposed
+     */
     async getGroupPublicInfo(groupId) {
         (0, console_1.assert)(this.db.data, "Database not initialized");
         const group = this.db.data.groups.find(g => g.id === groupId);
@@ -321,6 +330,9 @@ class Database {
         return { id: group.id, name: group.name, description: group.description };
     }
     async sendPollResultsEmail(adminEmail, poll, groupName) {
+        console.log(`Attempting to send poll results email to ${adminEmail} for poll "${poll.title}" in group "${groupName}"`);
+        console.log(`MAIL_USER: ${process.env.MAIL_USER ? 'SET' : 'NOT SET'}`);
+        console.log(`MAIL_PASS: ${process.env.MAIL_PASS ? 'SET' : 'NOT SET'}`);
         try {
             const transporter = nodemailer_1.default.createTransport({
                 service: "gmail",
@@ -337,40 +349,57 @@ class Database {
                 resultsText += `${option.optionName}: ${option.votes} votes\n`;
             }
             resultsText += `\nTotal votes: ${poll.votes}`;
+            console.log(`Sending email with subject: Poll Results: ${poll.title}`);
+            console.log(`Email body length: ${resultsText.length} characters`);
             const info = await transporter.sendMail({
                 from: `"VoxPlatform Poll Results" <${process.env.MAIL_USER}>`,
                 to: adminEmail,
                 subject: `Poll Results: ${poll.title}`,
                 text: resultsText,
             });
-            console.log("Poll results email sent:", info.response);
+            console.log("Poll results email sent successfully:", info.response);
         }
         catch (error) {
             console.error("Error sending poll results email:", error);
+            console.error("Error details:", error instanceof Error ? error.message : String(error));
+            console.error("Stack trace:", error instanceof Error ? error.stack : 'No stack trace available');
         }
     }
+    /**
+     * Funkce projde veškerá hlasování a porovná datum ukončení s nýnějším časem
+     */
     async checkPollDates() {
         (0, console_1.assert)(this.db.data, "Database not initialized");
         const now = new Date();
+        console.log(`Checking for expired polls at ${now.toISOString()}`);
         for (const group of this.db.data.groups) {
+            console.log(`Checking group "${group.name}" (ID: ${group.id}) with ${group.polls.length} polls`);
             for (let i = group.polls.length - 1; i >= 0; i--) {
                 const poll = group.polls[i];
-                if (new Date(poll.end) <= now) {
-                    // Find admins
+                const pollEndDate = new Date(poll.end);
+                console.log(`Poll "${poll.title}" (ID: ${poll.id}) ends at ${pollEndDate.toISOString()}, now is ${now.toISOString()}`);
+                if (pollEndDate <= now) {
+                    console.log(`Poll "${poll.title}" has expired, sending results emails`);
                     const admins = this.db.data.userGroups.filter(ug => ug.groupId === group.id && ug.role === "admin");
+                    console.log(`Found ${admins.length} admins for group "${group.name}": ${admins.map(a => a.userEmail).join(', ')}`);
                     for (const admin of admins) {
                         await this.sendPollResultsEmail(admin.userEmail, poll, group.name);
                     }
-                    // Delete poll
+                    console.log(`Removing expired poll "${poll.title}" from group "${group.name}"`);
                     group.polls.splice(i, 1);
                 }
             }
         }
         await this.db.write();
+        console.log("Poll date check completed");
     }
     isReady() {
         return !!this.db.data;
     }
+    /**
+     * Funkce začne s periodickou kontrolou datumů ukončení
+     * @param intervalMs interval opakování v milisekundách, default 60 000
+     */
     startPollChecker(intervalMs = 60000) {
         setInterval(async () => {
             try {

@@ -68,11 +68,13 @@ router.get('/api/login/code', (req: Request, res: Response) => {
             if (isValid) {
                 const cookie = generateCookie();
                 await saveCookie(email, cookie);
+                // Set cookie with more compatible settings
                 res.cookie('session', cookie, {
                   httpOnly: true,
                   maxAge: 24 * 60 * 60 * 1000,
                   sameSite: 'lax',
-                  secure: false
+                  secure: false,
+                  path: '/'
                 });
                 res.json({ message: 'Code is valid' });
             } else {

@@ -8,6 +8,9 @@ exports.generateCookie = generateCookie;
 exports.saveCookie = saveCookie;
 exports.getCookieByEmail = getCookieByEmail;
 exports.validateCookie = validateCookie;
+/**
+ * @module Cookies
+ */
 const lowdb_1 = require("lowdb");
 const node_1 = require("lowdb/node");
 const path_1 = __importDefault(require("path"));

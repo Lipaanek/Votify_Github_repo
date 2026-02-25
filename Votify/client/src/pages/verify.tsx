@@ -1,16 +1,39 @@
 import './login.css';
 import logo from '../assets/voxplatform_logo.png';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export default function VerifyPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email || '';
+  const [email, setEmail] = useState(location.state?.email || '');
+  const [emailInput, setEmailInput] = useState(email);
+  const [needsEmail, setNeedsEmail] = useState(!email);
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const [loading, setLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Update email when location.state changes
+  useEffect(() => {
+    if (location.state?.email && !email) {
+      setEmail(location.state.email);
+      setEmailInput(location.state.email);
+      setNeedsEmail(false);
+    }
+  }, [location.state]);
+
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (emailInput && emailInput.includes('@')) {
+      setEmail(emailInput);
+      setNeedsEmail(false);
+    } else {
+      setMessage('Please enter a valid email address');
+      setMessageType('error');
+    }
+  };
 
   const handleDigitChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
@@ -32,6 +55,12 @@ export default function VerifyPage() {
   };
 
   const handleVerify = async () => {
+    if (!email) {
+      setMessage('Please enter your email address first');
+      setMessageType('error');
+      return;
+    }
+    
     const code = digits.join('');
     if (code.length !== 6 || !/^\d{6}$/.test(code)) {
       setMessage('Please enter a valid 6-digit code');
@@ -40,6 +69,7 @@ export default function VerifyPage() {
     }
 
     console.log('Verify button clicked');
+    setLoading(true);
 
     try {
       const response = await fetch(`/api/login/code?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`, {
@@ -49,7 +79,10 @@ export default function VerifyPage() {
       if (response.ok) {
         setMessage('Code verified successfully!');
         setMessageType('success');
-        navigate("/dashboard", { state: email });
+        // Wait a moment before navigating so user sees the success message
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 500);
         
       } else {
         setMessage(data.error || 'Invalid code');
@@ -59,6 +92,8 @@ export default function VerifyPage() {
       console.error('Error verifying code:', err);
       setMessage('Error verifying code. Please try again.');
       setMessageType('error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,39 +141,64 @@ export default function VerifyPage() {
           </div>
 
           <div className="login-form">
-            <h2 className="form-title">Enter Verification Code</h2>
-            <div className="code-inputs">
-              {digits.map((digit, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  className="digit-input"
-                  value={digit}
-                  onChange={(e) => handleDigitChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  maxLength={1}
-                  ref={(el) => {
-                    inputRefs.current[index] = el;
-                  }}
-                  aria-label={`Digit ${index + 1}`}
-                />
-              ))}
-            </div>
-            {message && <p className={`message ${messageType}`}>{message}</p>}
-            <button className="button login-button" onClick={handleVerify}>
-              Verify Code
-            </button>
-            <p className="resend-prompt">
-              Didn't receive the code? <button className="link" onClick={handleResend}>Resend</button>
-            </p>
-            <div className="divider">
-              <span>or</span>
-            </div>
-            <p className="signup-prompt">
-              Wrong email? <Link to="/login" className="signup-link">Go back</Link>
-            </p>
+            {needsEmail ? (
+              <form onSubmit={handleEmailSubmit}>
+                <h2 className="form-title">Enter Your Email</h2>
+                <p className="form-description">Please enter the email address you used to register</p>
+                <div className="form-group">
+                  <label htmlFor="email">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email address"
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className="button login-button">
+                  Continue
+                </button>
+              </form>
+            ) : (
+              <>
+                <h2 className="form-title">Enter Verification Code</h2>
+                <p className="form-description">Code sent to: <strong>{email}</strong></p>
+                <div className="code-inputs">
+                  {digits.map((digit, index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      className="digit-input"
+                      value={digit}
+                      onChange={(e) => handleDigitChange(index, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(index, e)}
+                      maxLength={1}
+                      ref={(el) => {
+                        inputRefs.current[index] = el;
+                      }}
+                      aria-label={`Digit ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                {message && <p className={`message ${messageType}`}>{message}</p>}
+                <button className="button login-button" onClick={handleVerify} disabled={loading}>
+                  {loading ? 'Verifying...' : 'Verify Code'}
+                </button>
+                <p className="resend-prompt">
+                  Didn't receive the code? <button className="link" onClick={handleResend}>Resend</button>
+                </p>
+                <div className="divider">
+                  <span>or</span>
+                </div>
+                <p className="signup-prompt">
+                  Wrong email? <button className="link" onClick={() => setNeedsEmail(true)}>Change email</button>
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>

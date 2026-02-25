@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dbExists = dbExists;
+/**
+ * @module Routes
+ */
 const express_1 = require("express");
 const auth_1 = require("../auth");
 const cookies_1 = require("../cookies");
@@ -9,7 +12,6 @@ const router = (0, express_1.Router)();
 const dbInstance = new db_1.Database();
 dbInstance.init().then(async () => {
     console.log("Database initialized");
-    // Check for expired polls on startup
     await dbInstance.checkPollDates();
 }).catch(err => {
     console.error("Error initializing database:", err);
@@ -65,11 +67,13 @@ router.get('/api/login/code', (req, res) => {
         if (isValid) {
             const cookie = (0, cookies_1.generateCookie)();
             await (0, cookies_1.saveCookie)(email, cookie);
+            // Set cookie with more compatible settings
             res.cookie('session', cookie, {
                 httpOnly: true,
                 maxAge: 24 * 60 * 60 * 1000,
                 sameSite: 'lax',
-                secure: false // Set to true in production with HTTPS
+                secure: false,
+                path: '/'
             });
             res.json({ message: 'Code is valid' });
         }
@@ -109,29 +113,44 @@ router.get('/api/info/groups', async (req, res) => {
     res.json(info);
 });
 router.post('/api/group', async (req, res) => {
+    console.log('POST request to /api/group');
     if (!dbExists()) {
-        return;
+        console.log('Database does not exist');
+        return res.status(500).json({ error: 'Database not available' });
+    }
+    if (!dbInstance.isReady()) {
+        console.log('Database not ready');
+        return res.status(500).json({ error: 'Database not ready' });
     }
     const cookie = req.cookies.session;
     if (!cookie) {
+        console.log('No session cookie');
         return res.status(401).json({ error: 'Not authenticated' });
     }
     const email = await (0, cookies_1.validateCookie)(cookie);
     if (!email) {
+        console.log('Invalid session cookie');
         return res.status(401).json({ error: 'Invalid session' });
     }
+    console.log(`Authenticated user: ${email}`);
     const { name, description } = req.body;
+    console.log(`Group creation request: name=${name}, description=${description}`);
     if (!name) {
+        console.log('Group name is required');
         return res.status(400).json({ error: 'Group name is required' });
     }
     try {
+        console.log('Attempting to add group to database');
         const groupId = await dbInstance.addGroup({ name, description: description || '', last_use: new Date().toISOString() });
+        console.log(`Group created with ID: ${groupId}`);
+        console.log('Attempting to add user to group');
         await dbInstance.addUserToGroup(email, groupId, 'admin');
+        console.log('User added to group successfully');
         res.json({ message: 'Group created', groupId });
     }
     catch (err) {
         console.error('Error creating group:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error creating group' });
     }
 });
 router.post('/api/poll', async (req, res) => {
@@ -320,22 +339,18 @@ router.post('/api/group/:groupId/join', async (req, res) => {
         return res.status(400).json({ error: 'Invalid group ID' });
     }
     try {
-        // Ensure user exists in database
         const userExists = await dbInstance.doesUserExist(email);
         if (!userExists) {
             await dbInstance.addUser({ email, name: '' });
         }
-        // Check if group exists
         const groupInfo = await dbInstance.getGroupPublicInfo(groupId);
         if (!groupInfo) {
             return res.status(404).json({ error: 'Group not found' });
         }
-        // Check if already member
         const userGroups = await dbInstance.getUserInfo(email);
         if (userGroups && userGroups.userGroups.some(g => g.id === groupId)) {
             return res.status(400).json({ error: 'Already a member of this group' });
         }
-        // Add user to group
         await dbInstance.addUserToGroup(email, groupId, 'member');
         res.json({ success: true });
     }

@@ -13,6 +13,9 @@ exports.validateCode = validateCode;
 exports.isTimeUpForCode = isTimeUpForCode;
 exports.getVerificationCode = getVerificationCode;
 exports.sendVerificationMail = sendVerificationMail;
+/**
+ * @module Auth
+ */
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const lowdb_1 = require("lowdb");
@@ -90,13 +93,13 @@ async function validateCode(email, code) {
     db.data || (db.data = { code: [] });
     const record = db.data.code.find((entry) => entry.email === email);
     if (record) {
-        if (record.code === code && record.expiresAt > Date.now() && record.attempts > 0) {
+        if (record.code === code && record.expiresAt > Date.now() && record.alreadyAttempted < 3) {
             console.log(`Code for ${email} is valid.`);
             await deleteVerificationCode(email);
             return true;
         }
         else {
-            record.attempts -= 1;
+            record.alreadyAttempted += 1;
             await db.write();
             return false;
         }
@@ -155,7 +158,6 @@ async function sendVerificationMail(email) {
     }
     catch (error) {
         console.error("Error sending email:", error);
-        // Fallback: log the code to console for testing
         const VERIFICATION_CODE = generateVerificationCode();
         console.log(`\n=== VERIFICATION CODE FOR ${email} ===`);
         console.log(`Code: ${VERIFICATION_CODE}`);
