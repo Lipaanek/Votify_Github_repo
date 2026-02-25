@@ -24,6 +24,8 @@ export default function ViewPollPage() {
   const [userEmail, setUserEmail] = useState<string>('');
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmVote, setConfirmVote] = useState<{ optionName: string; optionDescription?: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -73,20 +75,28 @@ export default function ViewPollPage() {
     return shuffled;
   };
 
-  const voteForOption = (optionName: string) => {
-    if (!pollId) return;
+  const voteForOption = (optionName: string, optionDescription?: string) => {
+    // Show custom confirmation modal
+    setConfirmVote({ optionName, optionDescription });
+  };
+
+  const handleConfirmVote = () => {
+    if (!pollId || !confirmVote) return;
+    
+    setSubmitting(true);
     fetch(`/api/poll/${pollId}/vote`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify({ optionName }),
+      body: JSON.stringify({ optionName: confirmVote.optionName }),
     })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           fetchPoll(); // Refetch to update votes and alreadyVoted
+          setConfirmVote(null);
         } else {
           alert('Error voting');
         }
@@ -94,7 +104,12 @@ export default function ViewPollPage() {
       .catch(err => {
         console.error('Error voting:', err);
         alert('Error voting');
-      });
+      })
+      .finally(() => setSubmitting(false));
+  };
+
+  const handleCancelVote = () => {
+    setConfirmVote(null);
   };
 
   if (!authenticated || loading) {
@@ -140,11 +155,11 @@ export default function ViewPollPage() {
                     <p>Votes: {option.votes}</p>
                     <button
                       className="button login-button"
-                      onClick={() => voteForOption(option.optionName)}
+                      onClick={() => voteForOption(option.optionName, option.optionDescription)}
                       disabled={poll.alreadyVoted.includes(userEmail) || new Date(poll.end) <= new Date()}
                       style={{ opacity: (poll.alreadyVoted.includes(userEmail) || new Date(poll.end) <= new Date()) ? 0.5 : 1 }}
                     >
-                      {new Date(poll.end) <= new Date() ? "Poll Ended" : "Vote"}
+                      {new Date(poll.end) <= new Date() ? "Poll Ended" : poll.alreadyVoted.includes(userEmail) ? "Already Voted" : "Vote"}
                     </button>
                   </div>
                 ))
@@ -167,6 +182,41 @@ export default function ViewPollPage() {
           </div>
         </div>
       </div>
+
+      {/* Custom Confirmation Modal */}
+      {confirmVote && (
+        <div className="modal-overlay" onClick={handleCancelVote}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Confirm Your Vote</h2>
+            </div>
+            <div className="modal-body">
+              <p className="modal-message">Are you sure you want to vote for:</p>
+              <div className="modal-option-preview">
+                <h3>{confirmVote.optionName}</h3>
+                {confirmVote.optionDescription && <p>{confirmVote.optionDescription}</p>}
+              </div>
+              <p className="modal-warning">This action cannot be undone.</p>
+            </div>
+            <div className="modal-actions">
+              <button 
+                className="button modal-cancel" 
+                onClick={handleCancelVote}
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+              <button 
+                className="button modal-confirm" 
+                onClick={handleConfirmVote}
+                disabled={submitting}
+              >
+                {submitting ? 'Voting...' : 'Confirm Vote'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

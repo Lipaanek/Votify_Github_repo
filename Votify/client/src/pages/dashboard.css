@@ -58,6 +58,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -71,6 +72,8 @@ body {
   min-height: 100vh;
   overflow-y: auto;
   text-decoration: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-bg-gradient-end);
 }
 
 .App {
@@ -185,7 +188,11 @@ body {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-border-light);
 }
 
 .active-polls-list::-webkit-scrollbar {
@@ -206,10 +213,11 @@ body {
   background: var(--color-primary-hover);
 }
 
-.poll-card {
+.poll-card, .group-card, .group-poll-card {
   background: white;
   border-radius: var(--border-radius-xl);
   width: 240px;
+  min-width: 200px;
   height: 120px;
   display: flex;
   flex-direction: column;
@@ -218,6 +226,7 @@ body {
   border: 1px solid var(--color-border);
   transition: all 0.3s ease;
   flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .poll-card:hover {
@@ -277,7 +286,11 @@ body {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-border-light);
 }
 
 .joined-groups-list::-webkit-scrollbar {
@@ -302,6 +315,7 @@ body {
   background: white;
   border-radius: var(--border-radius-xl);
   width: 240px;
+  min-width: 200px;
   height: 120px;
   display: flex;
   flex-direction: column;
@@ -310,6 +324,7 @@ body {
   border: 1px solid var(--color-border);
   transition: all 0.3s ease;
   flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .group-card:hover {
@@ -398,6 +413,7 @@ body {
   background: white;
   border-radius: var(--border-radius-xl);
   width: 240px;
+  min-width: 200px;
   height: 120px;
   display: flex;
   flex-direction: column;
@@ -406,6 +422,7 @@ body {
   border: 1px solid var(--color-border);
   transition: all 0.3s ease;
   flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .group-poll-card:hover {
@@ -546,16 +563,19 @@ body {
 @media (max-width: 480px) {
   .main-content {
     padding: 0.5rem;
+    padding-top: 5rem;
   }
 
   .dashboard-section {
     padding: 0.75rem;
     margin-bottom: 1rem;
+    overflow-x: auto;
   }
 
   .dashboard-section h2 {
     font-size: var(--font-size-lg);
     margin-bottom: 0.75rem;
+    white-space: nowrap;
   }
 
   .active-polls-list, .joined-groups-list {
@@ -563,14 +583,18 @@ body {
   }
 
   .poll-card, .group-card {
-    width: 180px;
-    height: 90px;
+    width: 160px;
+    min-width: 160px;
+    height: 100px;
     padding: 0.5rem;
   }
 
   .poll-card h3, .group-card h3 {
     font-size: var(--font-size-sm);
     padding-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .group-polls-list {
@@ -579,8 +603,9 @@ body {
   }
 
   .group-poll-card {
-    width: 180px;
-    height: 90px;
+    width: 100%;
+    min-width: 160px;
+    height: 100px;
     padding: 0.5rem;
   }
 
@@ -598,13 +623,30 @@ body {
   }
 
   .dashboard-buttons {
-    gap: 1rem;
-    padding: 2rem 0;
+    gap: 0.5rem;
+    padding: 1rem 0;
+    flex-direction: column;
+    align-items: center;
   }
 
   .action-button {
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
     font-size: var(--font-size-sm);
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .top_bar {
+    padding: 0 0.5rem;
+  }
+
+  .top_bar .nav-buttons {
+    gap: 0.25rem;
+  }
+
+  .top_bar .button2 {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
   }
 }
 

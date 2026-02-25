@@ -112,6 +112,8 @@ export default function VerifyPage() {
                 <input
                   key={index}
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   className="digit-input"
                   value={digit}
                   onChange={(e) => handleDigitChange(index, e.target.value)}
@@ -120,6 +122,7 @@ export default function VerifyPage() {
                   ref={(el) => {
                     inputRefs.current[index] = el;
                   }}
+                  aria-label={`Digit ${index + 1}`}
                 />
               ))}
             </div>

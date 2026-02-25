@@ -27,8 +27,7 @@ export default function HomePage() {
 
         {/* Action Buttons */}
         <div className="action-buttons">
-          <Link to="/login" className="button">Login</Link>
-          <Link to="/register" className="button secondary">Create Account</Link>
+          <Link to="/login" className="button">Login / Create Account</Link>
         </div>
 
         {/* Features Section */}
